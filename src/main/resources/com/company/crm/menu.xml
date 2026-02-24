@@ -45,7 +45,8 @@
     <menu id="administration"
           description="msg:///menu_config.administration.description"
           title="msg:///menu_config.administration.title"
-          icon="vaadin:cog">
+          icon="vaadin:cog"
+          opened="true">
         <item view="dynat_CategoryView.list" id="dynamic_attributes"
               icon="vaadin:table"
               title="msg://io.jmix.dynattrflowui.panel/category"/>

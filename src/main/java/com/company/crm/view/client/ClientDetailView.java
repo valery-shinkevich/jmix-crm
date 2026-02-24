@@ -11,7 +11,6 @@ import com.company.crm.app.util.AsyncTasksRegistry;
 import com.company.crm.app.util.constant.CrmConstants;
 import com.company.crm.app.util.date.range.LocalDateRange;
 import com.company.crm.app.util.ui.chart.ChartsUtils;
-import com.company.crm.app.util.ui.listener.resize.WidthResizeListener;
 import com.company.crm.app.util.ui.renderer.CrmRenderers;
 import com.company.crm.model.address.Address;
 import com.company.crm.model.client.Client;
@@ -34,7 +33,6 @@ import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.splitlayout.SplitLayout.Orientation;
 import com.vaadin.flow.data.renderer.Renderer;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility.Overflow;
@@ -51,6 +49,7 @@ import io.jmix.core.FetchPlan;
 import io.jmix.core.Messages;
 import io.jmix.core.MetadataTools;
 import io.jmix.core.SaveContext;
+import io.jmix.core.metamodel.datatype.DatatypeFormatter;
 import io.jmix.flowui.Fragments;
 import io.jmix.flowui.Notifications;
 import io.jmix.flowui.UiComponents;
@@ -58,7 +57,6 @@ import io.jmix.flowui.action.view.DetailSaveCloseAction;
 import io.jmix.flowui.asynctask.UiAsyncTasks;
 import io.jmix.flowui.asynctask.UiAsyncTasks.SupplierConfigurer;
 import io.jmix.flowui.component.formlayout.JmixFormLayout;
-import io.jmix.flowui.component.splitlayout.JmixSplitLayout;
 import io.jmix.flowui.component.tabsheet.JmixTabSheet;
 import io.jmix.flowui.component.textarea.JmixTextArea;
 import io.jmix.flowui.kit.action.ActionPerformedEvent;
@@ -95,8 +93,12 @@ import static com.company.crm.app.util.demo.DemoUtils.defaultSleepForStatisticsL
 @ViewDescriptor(path = "client-detail-view.xml")
 @EditedEntityContainer("clientDc")
 @DialogMode(width = "90%", height = "90%", resizable = true, closeOnEsc = true, closeOnOutsideClick = true)
-public class ClientDetailView extends StandardDetailView<Client> implements WidthResizeListener {
+public class ClientDetailView extends StandardDetailView<Client> {
 
+    @Autowired
+    private Messages messages;
+    @Autowired
+    private Fragments fragments;
     @Autowired
     private ChartsUtils chartsUtils;
     @Autowired
@@ -106,6 +108,8 @@ public class ClientDetailView extends StandardDetailView<Client> implements Widt
     @Autowired
     private UiComponents uiComponents;
     @Autowired
+    private Notifications notifications;
+    @Autowired
     private MetadataTools metadataTools;
     @Autowired
     private ClientService clientService;
@@ -113,6 +117,8 @@ public class ClientDetailView extends StandardDetailView<Client> implements Widt
     private DateTimeService dateTimeService;
     @Autowired
     private ClientRepository clientRepository;
+    @Autowired
+    private DatatypeFormatter datatypeFormatter;
 
     @ViewComponent
     private JmixTabSheet tabSheet;
@@ -120,8 +126,6 @@ public class ClientDetailView extends StandardDetailView<Client> implements Widt
     private JmixFormLayout summaryBlock;
     @ViewComponent
     private RecentActivitiesBlock recentActivities;
-    @ViewComponent
-    private JmixSplitLayout formSplit;
     @ViewComponent
     private JmixFormLayout analyticChartsBlock;
     @ViewComponent
@@ -132,15 +136,8 @@ public class ClientDetailView extends StandardDetailView<Client> implements Widt
     private CrmCard averageBillCard;
     @ViewComponent
     private H3 outstandingBalanceValue;
-
-    @SuppressWarnings("FieldCanBeLocal")
-    private final int loadStatsForLastYearsAmount = 3;
-    @Autowired
-    private Notifications notifications;
-    @Autowired
-    private Fragments fragments;
-    @Autowired
-    private Messages messages;
+    @ViewComponent
+    private H2 clientName;
     @ViewComponent
     private InstancePropertyContainer<Address> addressDc;
     @ViewComponent
@@ -148,15 +145,10 @@ public class ClientDetailView extends StandardDetailView<Client> implements Widt
     @ViewComponent
     private DetailSaveCloseAction<Object> saveCloseAction;
 
+    @SuppressWarnings("FieldCanBeLocal")
+    private final int loadStatsForLastYearsAmount = 3;
     private final AsyncTasksRegistry asyncTasksRegistry = AsyncTasksRegistry.newInstance();
     private final Map<Integer, List<CompletedOrdersByDateRangeInfo>> ordersInfoForLastYears = new HashMap<>();
-    @ViewComponent
-    private H2 clientName;
-
-    @Override
-    public void configureUiForWidth(int width) {
-        formSplit.setOrientation(width > 900 ? Orientation.HORIZONTAL : Orientation.VERTICAL);
-    }
 
     @Override
     public void setReadOnly(boolean readOnly) {
@@ -294,7 +286,7 @@ public class ClientDetailView extends StandardDetailView<Client> implements Widt
         SupplierConfigurer<BigDecimal> taskConfigurer = uiAsyncTasks
                 .supplierConfigurer(() -> calculateOutstandingBalance(client))
                 .withExceptionHandler(e -> outstandingBalanceValue.setText("-"))
-                .withResultHandler(total -> outstandingBalanceValue.setText(PriceDataType.defaultFormat(total)));
+                .withResultHandler(total -> outstandingBalanceValue.setText(PriceDataType.defaultFormat(total, datatypeFormatter)));
         asyncTasksRegistry.placeTask("outstandingBalanceTask", taskConfigurer);
     }
 
@@ -306,10 +298,12 @@ public class ClientDetailView extends StandardDetailView<Client> implements Widt
 
     private void installCardLoader(CrmCard card) {
         card.removeAll();
-        CrmLoader loader = new CrmLoader();
-        loader.startLoading();
-        card.add(loader);
+        card.setHeader(null);
         SkeletonStyler.apply(card);
+
+        CrmLoader loader = new CrmLoader(card);
+        loader.setLogoSize("3em");
+        loader.startLoading();
     }
 
     private void scheduleOrdersTotalSumCalculating(Client client) {
@@ -357,7 +351,7 @@ public class ClientDetailView extends StandardDetailView<Client> implements Widt
     }
 
     private void fillSummaryCard(String title, CrmCard card, BigDecimal value) {
-        var valueContent = new H1(PriceDataType.defaultFormat(value));
+        var valueContent = new H1(PriceDataType.defaultFormat(value, datatypeFormatter));
         valueContent.addClassNames(Overflow.HIDDEN, TextOverflow.ELLIPSIS, Whitespace.NOWRAP);
 
         var content = new VerticalLayout(valueContent);

@@ -7,23 +7,20 @@ import com.company.crm.model.client.Client;
 import com.company.crm.model.client.ClientRepository;
 import com.company.crm.model.user.User;
 import com.company.crm.view.client.ClientListView;
-import com.company.crm.view.home.HomeView;
 import com.google.common.base.Strings;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.avatar.AvatarVariant;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.popover.Popover;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
-import com.vaadin.flow.router.Route;
+import com.vaadin.flow.theme.lumo.LumoUtility;
 import io.jmix.core.Messages;
 import io.jmix.core.Metadata;
 import io.jmix.core.security.CurrentAuthentication;
@@ -34,34 +31,26 @@ import io.jmix.flowui.ViewNavigators;
 import io.jmix.flowui.app.main.StandardMainView;
 import io.jmix.flowui.asynctask.UiAsyncTasks;
 import io.jmix.flowui.component.SupportsTypedValue.TypedValueChangeEvent;
-import io.jmix.flowui.component.main.JmixListMenu;
-import io.jmix.flowui.component.main.JmixListMenu.ViewMenuItem;
 import io.jmix.flowui.component.textfield.TypedTextField;
 import io.jmix.flowui.component.virtuallist.JmixVirtualList;
 import io.jmix.flowui.kit.action.ActionPerformedEvent;
 import io.jmix.flowui.kit.component.button.JmixButton;
-import io.jmix.flowui.kit.component.main.ListMenu.MenuBarItem;
-import io.jmix.flowui.kit.component.main.ListMenu.MenuItem;
 import io.jmix.flowui.view.Install;
+import io.jmix.flowui.view.MessageBundle;
 import io.jmix.flowui.view.Subscribe;
-import io.jmix.flowui.view.View;
 import io.jmix.flowui.view.ViewComponent;
 import io.jmix.flowui.view.ViewController;
 import io.jmix.flowui.view.ViewDescriptor;
 import org.apache.commons.lang3.StringUtils;
-import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
 import static com.company.crm.app.util.demo.DemoUtils.defaultSleepForClientsSearching;
 
-@Route("")
 @ViewController(id = CrmConstants.ViewIds.MAIN)
 @ViewDescriptor(path = "main-view.xml")
 public class MainView extends StandardMainView {
@@ -89,7 +78,7 @@ public class MainView extends StandardMainView {
     private OnlineDemoDataCreator onlineDemoDataCreator;
 
     @ViewComponent
-    private JmixListMenu menu;
+    private MessageBundle messageBundle;
     @ViewComponent
     private TypedTextField<String> searchField;
     @ViewComponent
@@ -100,7 +89,6 @@ public class MainView extends StandardMainView {
 
     @Subscribe
     private void onReady(final ReadyEvent event) {
-        selectSuitableMenuItem();
         if (onlineDemoDataCreator != null) {
             onlineDemoDataCreator.createDemoDataIfNeeded();
         }
@@ -183,33 +171,9 @@ public class MainView extends StandardMainView {
         onSearchFieldValueChange(event);
     }
 
-    @Subscribe(id = "notificationsButton", subject = "doubleClickListener")
-    public void onNotificationsButtonDoubleClick(final ClickEvent<JmixButton> event) {
-        onNotificationButtonClick();
-    }
-
     @Subscribe(id = "notificationsButton", subject = "clickListener")
     private void onNotificationsButtonSingleClick(final ClickEvent<JmixButton> event) {
         onNotificationButtonClick();
-    }
-
-    @Subscribe(id = "applicationTitle", subject = "clickListener")
-    private void onApplicationTitleClick(final ClickEvent<H2> event) {
-        UI currentUI = UI.getCurrent();
-        if (currentUI == null) {
-            return;
-        }
-
-        Component currentView = currentUI.getCurrentView();
-        if (currentView == null) {
-            return;
-        }
-
-        if (currentView instanceof HomeView homeView) {
-            homeView.getUI().ifPresent(ui -> ui.getPage().reload());
-        } else {
-            viewNavigators.view(this, HomeView.class).navigate();
-        }
     }
 
     private Avatar createAvatar(String fullName) {
@@ -240,13 +204,12 @@ public class MainView extends StandardMainView {
 
         HorizontalLayout layout = new HorizontalLayout(VaadinIcon.CHECK.create(), new Span("Notifications not found"));
         layout.setSizeFull();
+        layout.setPadding(true);
         layout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
         layout.setAlignItems(FlexComponent.Alignment.CENTER);
 
         Popover popover = new Popover(layout);
         popover.setTarget(notificationsButton);
-        popover.setWidth("16em");
-        popover.setHeight("4em");
         popover.setCloseOnEsc(true);
         popover.setCloseOnOutsideClick(true);
         popover.open();
@@ -282,7 +245,7 @@ public class MainView extends StandardMainView {
                 .withResultHandler(clients -> updateSearchPopover(clients, clientsSize, popover))
                 .withExceptionHandler(e -> {
                     popover.removeAll();
-                    popover.add(new Span("Something went wrong"));
+                    popover.add(new Span(messages.getMessage("something.went.wrong")));
                 })
                 .supplyAsync();
 
@@ -291,20 +254,19 @@ public class MainView extends StandardMainView {
 
     private void updateSearchPopover(List<Client> clients, int clientsSize, Popover popover) {
         Client showAll = metadata.create(Client.class);
-        showAll.setName("Show all...");
+        showAll.setName(messageBundle.getMessage("show.all"));
         if (clients.size() <= clientsSize) {
             clients.add(showAll);
         }
 
         JmixVirtualList<Client> virtualList = uiComponents.create(JmixVirtualList.class);
         virtualList.setItems(clients);
+        virtualList.setRenderer(createClientsListRenderer(showAll, popover));
+        virtualList.addClassNames(LumoUtility.Padding.MEDIUM);
 
         popover.removeAll();
         popover.add(virtualList);
-        popover.setWidth("25em");
-        popover.setHeight(Math.min(clients.size() * 1.8, 25) + "em");
-
-        virtualList.setRenderer(createClientsListRenderer(showAll, popover));
+        popover.setHeight(Math.min(clients.size() * 3, 20) + "em");
     }
 
     private ComponentRenderer<Component, Client> createClientsListRenderer(Client showAll, Popover popover) {
@@ -313,6 +275,7 @@ public class MainView extends StandardMainView {
 
             JmixButton button = uiComponents.create(JmixButton.class);
             button.setText(client.getName());
+            button.addClassNames(LumoUtility.TextOverflow.ELLIPSIS, LumoUtility.Whitespace.NOWRAP);
             button.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE, ButtonVariant.LUMO_CONTRAST);
             button.setIcon(isShowAll ? VaadinIcon.EXTERNAL_LINK.create() : VaadinIcon.USER.create());
 
@@ -335,67 +298,5 @@ public class MainView extends StandardMainView {
     private List<Client> searchClientsByName(String name, int size) {
         defaultSleepForClientsSearching();
         return clientRepository.findAllByNameContains(name, Pageable.ofSize(size));
-    }
-
-    private void selectSuitableMenuItem() {
-        getUI().map(UI::getCurrentView)
-                .filter(View.class::isInstance)
-                .map(View.class::cast)
-                .map(v -> v.getClass())
-                .ifPresent(this::selectRelatedMenuItem);
-    }
-
-    @SuppressWarnings("rawtypes")
-    private void selectRelatedMenuItem(Class<? extends View> viewClass) {
-        MenuItemStructure menuStructure = buildMenuStructure();
-        for (MenuItemInfo itemInfo : menuStructure.itemsInfo()) {
-            if (itemInfo.menuItem() instanceof ViewMenuItem viewMenuItem) {
-                if (viewClass.equals(viewMenuItem.getControllerClass())) {
-                    Optional.ofNullable(itemInfo.parentMenuItem()).ifPresent(parent -> {
-                        if (parent instanceof MenuBarItem menuBarItem) {
-                            menuBarItem.setOpened(true);
-                        }
-                    });
-                    break;
-                }
-            }
-        }
-    }
-
-    private MenuItemStructure buildMenuStructure() {
-        MenuItemStructure menuStructure = new MenuItemStructure();
-        for (MenuItem menuItem : menu.getMenuItems()) {
-            buildMenuStructureRecursively(menuItem, null, menuStructure);
-        }
-        return menuStructure;
-    }
-
-    private void buildMenuStructureRecursively(MenuItem menuItem, MenuItem parentMenuItem, MenuItemStructure menuStructure) {
-        menuStructure.addInfo(new MenuItemInfo(menuItem, parentMenuItem));
-        if (menuItem instanceof MenuBarItem menuBarItem) {
-            for (MenuItem childItem : menuBarItem.getChildItems()) {
-                buildMenuStructureRecursively(childItem, menuItem, menuStructure);
-            }
-        }
-    }
-
-    private record MenuItemStructure(Collection<MenuItemInfo> itemsInfo) {
-
-        public MenuItemStructure() {
-            this(new ArrayList<>());
-        }
-
-        @Override
-        public Collection<MenuItemInfo> itemsInfo() {
-            return List.of(itemsInfo.toArray(new MenuItemInfo[0]));
-        }
-
-        public void addInfo(MenuItemInfo menuItemInfo) {
-            itemsInfo.add(menuItemInfo);
-        }
-    }
-
-    private record MenuItemInfo(MenuItem menuItem,
-                                @Nullable MenuItem parentMenuItem) {
     }
 }

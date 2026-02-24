@@ -312,7 +312,7 @@ public class InvoiceListView extends StandardListView<Invoice> {
         block.setSpacing(false);
         block.setPadding(false);
         block.setMaxWidth(8, Unit.EM);
-        CrmUiUtils.setCursorPointer(block);
+        CrmUiUtils.setClickableCursor(block);
         block.setAlignItems(Alignment.CENTER);
         block.setJustifyContentMode(JustifyContentMode.CENTER);
         block.addClassName(Objects.equals(status, invoices_StatusSelect.getValue())

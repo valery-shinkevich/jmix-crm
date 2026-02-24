@@ -19,6 +19,7 @@ import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 import io.jmix.core.Messages;
+import io.jmix.core.metamodel.datatype.DatatypeFormatter;
 import io.jmix.core.querycondition.LogicalCondition;
 import io.jmix.core.repository.JmixDataRepositoryContext;
 import io.jmix.flowui.DialogWindows;
@@ -76,6 +77,8 @@ public class OrderListView extends StandardListView<Order> {
     private DialogWindows dialogWindows;
     @Autowired
     private OrderRepository orderRepository;
+    @Autowired
+    private DatatypeFormatter datatypeFormatter;
 
     @ViewComponent
     private CollectionLoader<Order> ordersDl;
@@ -176,7 +179,7 @@ public class OrderListView extends StandardListView<Order> {
 
     @Supply(to = "ordersDataGrid.total", subject = "renderer")
     private Renderer<Order> ordersDataGridTotalRenderer() {
-        return new TextRenderer<>(order -> formatWithoutCurrency(order.getTotal()));
+        return new TextRenderer<>(order -> formatWithoutCurrency(order.getTotal(), datatypeFormatter));
     }
 
     @Supply(to = "ordersDataGrid.number", subject = "renderer")
@@ -186,12 +189,12 @@ public class OrderListView extends StandardListView<Order> {
 
     @Supply(to = "ordersDataGrid.invoiced", subject = "renderer")
     private Renderer<Order> ordersDataGridInvoicedRenderer() {
-        return new TextRenderer<>(order -> formatWithoutCurrency(order.getInvoiced()));
+        return new TextRenderer<>(order -> formatWithoutCurrency(order.getInvoiced(), datatypeFormatter));
     }
 
     @Supply(to = "ordersDataGrid.paid", subject = "renderer")
     private Renderer<Order> ordersDataGridPaidRenderer() {
-        return new TextRenderer<>(order -> formatWithoutCurrency(order.getPaid()));
+        return new TextRenderer<>(order -> formatWithoutCurrency(order.getPaid(), datatypeFormatter));
     }
 
     @Supply(to = "ordersDataGrid.leftOverSum", subject = "renderer")
