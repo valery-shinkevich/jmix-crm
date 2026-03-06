@@ -80,6 +80,7 @@ import static com.company.crm.app.util.ui.CrmUiUtils.addRowSelectionInMultiSelec
 import static com.company.crm.app.util.ui.CrmUiUtils.openLink;
 import static com.company.crm.app.util.ui.CrmUiUtils.setSearchHintPopover;
 import static com.company.crm.app.util.ui.datacontext.DataContextUtils.addCondition;
+import static com.company.crm.app.util.ui.datacontext.DataContextUtils.installSortByCreatedDate;
 import static io.jmix.core.querycondition.PropertyCondition.contains;
 import static io.jmix.core.querycondition.PropertyCondition.equal;
 import static io.jmix.core.querycondition.PropertyCondition.isCollectionEmpty;
@@ -144,6 +145,11 @@ public class ClientListView extends StandardListView<Client> {
     private final AsyncTasksRegistry asyncTasksRegistry = AsyncTasksRegistry.newInstance();
 
     private final LogicalCondition filtersCondition = LogicalCondition.and();
+
+    @Subscribe
+    private void onInit(final InitEvent event) {
+        installSortByCreatedDate(clientsDl);
+    }
 
     @Override
     protected void onAttach(AttachEvent attachEvent) {
@@ -224,16 +230,17 @@ public class ClientListView extends StandardListView<Client> {
     @Supply(to = "clientsDataGrid.website", subject = "renderer")
     private Renderer<Client> clientsDataGridWebsiteRenderer() {
         return new ComponentRenderer<>(c -> {
-            String website = Objects.toString(c.getWebsite(), "");
-            if (website.length() > 30) {
-                website = StringUtils.substring(website, 0, 27) + "...";
+            String website = StringUtils.defaultString(c.getWebsite());
+            String websitePreview = Objects.toString(c.getWebsite(), "");
+            if (websitePreview.length() > 30) {
+                websitePreview = StringUtils.substring(websitePreview, 0, 27) + "...";
             }
 
-            Span span = new Span(website);
+            Span span = new Span(websitePreview);
             CrmUiUtils.setClickableCursor(span);
-            span.setTitle(c.getWebsite());
+            span.setTitle(website);
             span.addClassNames(LumoUtility.TextColor.PRIMARY, LumoUtility.TextColor.SECONDARY, TextOverflow.ELLIPSIS);
-            span.addClickListener(e -> openLink(c.getWebsite()));
+            span.addClickListener(e -> openLink(website));
             return span;
         });
     }

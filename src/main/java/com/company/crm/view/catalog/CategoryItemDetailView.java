@@ -24,6 +24,7 @@ import io.jmix.flowui.view.ViewController;
 import io.jmix.flowui.view.ViewDescriptor;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -50,7 +51,11 @@ public class CategoryItemDetailView extends StandardDetailView<CategoryItem> {
     private void onInit(InitEvent event) {
         imageUpload.setAcceptedFileTypes("image/*");
         imageUpload.addValueChangeListener(this::updateImagePreview);
+    }
 
+    @Subscribe
+    private void onInitEntity(final InitEntityEvent<CategoryItem> event) {
+        event.getEntity().setPrice(BigDecimal.ZERO);
     }
 
     @Install(to = "categoryItemDl", target = Target.DATA_LOADER, subject = "loadFromRepositoryDelegate")

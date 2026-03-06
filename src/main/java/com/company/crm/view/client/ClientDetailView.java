@@ -87,6 +87,7 @@ import java.util.UUID;
 
 import static com.company.crm.app.feature.sortable.SortableFeature.makeSortable;
 import static com.company.crm.app.util.demo.DemoUtils.defaultSleepForStatisticsLoading;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Route(value = "clients/:id", layout = MainView.class)
 @ViewController(id = CrmConstants.ViewIds.CLIENT_DETAIL)
@@ -186,6 +187,19 @@ public class ClientDetailView extends StandardDetailView<Client> {
         Address address = addressDc.getItemOrNull();
         if (address != null) {
             addressField.setValue(address.getInstanceName());
+        }
+    }
+
+    @Subscribe
+    private void onValidation(final ValidationEvent event) {
+        if (isAddressIncomplete(addressDc.getItemOrNull())) {
+            String errorMessage = messages.getMessage("com.company.crm.view.client/addressRequiredError");
+            addressField.setInvalid(true);
+            addressField.setErrorMessage(errorMessage);
+            event.getErrors().add(errorMessage);
+        } else {
+            addressField.setInvalid(false);
+            addressField.setErrorMessage(null);
         }
     }
 
@@ -459,5 +473,13 @@ public class ClientDetailView extends StandardDetailView<Client> {
             var completedOrdersInfo = clientService.getCompletedOrdersInfo(dateRange, client);
             ordersInfoForLastYears.put(currentYearStart.getYear(), completedOrdersInfo);
         }
+    }
+
+    private boolean isAddressIncomplete(Address address) {
+        return address == null
+                || isBlank(address.getCountry())
+                || isBlank(address.getCity())
+                || isBlank(address.getStreet())
+                || isBlank(address.getBuilding());
     }
 }

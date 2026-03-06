@@ -56,6 +56,7 @@ import static com.company.crm.app.util.ui.CrmUiUtils.addColumnHeaderCurrencySuff
 import static com.company.crm.app.util.ui.CrmUiUtils.addRowSelectionInMultiSelectMode;
 import static com.company.crm.app.util.ui.CrmUiUtils.setSearchHintPopover;
 import static com.company.crm.app.util.ui.datacontext.DataContextUtils.addCondition;
+import static com.company.crm.app.util.ui.datacontext.DataContextUtils.installSortByCreatedDate;
 import static com.company.crm.model.datatype.PriceDataType.formatWithoutCurrency;
 import static io.jmix.core.querycondition.PropertyCondition.equal;
 import static io.jmix.core.querycondition.PropertyCondition.greaterOrEqual;
@@ -109,16 +110,10 @@ public class OrderListView extends StandardListView<Order> {
 
     @Subscribe
     private void onInit(final InitEvent event) {
+        installSortByCreatedDate(ordersDl);
         configureGrid();
         clientsDl.load();
         registerUrlQueryParametersBinders();
-    }
-
-    private void configureGrid() {
-        addColumnHeaderCurrencySuffix(ordersDataGrid, "total", "invoiced", "paid", "leftOver");
-        addRowSelectionInMultiSelectMode(ordersDataGrid, "number");
-        ordersDataGrid.setItemDetailsRenderer(crmRenderers.orderDetails());
-        ordersDataGrid.setDetailsVisibleOnClick(false);
     }
 
     @Subscribe
@@ -213,6 +208,13 @@ public class OrderListView extends StandardListView<Order> {
         List.<HasValue<?, ?>>of(searchField, clientComboBox, fromDatePicker, toDatePicker).forEach(field -> {
             field.addValueChangeListener(e -> applyFilters());
         });
+    }
+
+    private void configureGrid() {
+        addColumnHeaderCurrencySuffix(ordersDataGrid, "total", "invoiced", "paid", "leftOver");
+        addRowSelectionInMultiSelectMode(ordersDataGrid, "number");
+        ordersDataGrid.setItemDetailsRenderer(crmRenderers.orderDetails());
+        ordersDataGrid.setDetailsVisibleOnClick(false);
     }
 
     private void registerUrlQueryParametersBinders() {
