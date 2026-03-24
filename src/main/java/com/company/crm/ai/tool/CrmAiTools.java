@@ -53,8 +53,8 @@ public record CrmAiTools(Collection<CrmAiTool> tools) {
             return this;
         }
 
-        public CrmAiTools build() {
-            return new CrmAiTools(tools);
+        public Collection<CrmAiTool> build() {
+            return new CrmAiTools(tools).tools();
         }
     }
 }
