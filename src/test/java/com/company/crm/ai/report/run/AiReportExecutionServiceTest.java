@@ -288,7 +288,7 @@ class AiReportExecutionServiceTest extends AbstractTest {
             Client client = entities.client("Invalid Date Format Client");
             Map<String, Object> parameters = Map.of(
                     "client", client.getId().toString(),
-                    "fromDate", "01.01.2026",
+                    "fromDate", "not-a-date",
                     "toDate", LocalDate.now().toString()
             );
 

@@ -26,6 +26,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
 
+import static io.jmix.reports.entity.ReportOutputType.valueOf;
+
 /**
  * Service for executing Jmix reports on behalf of AI tools.
  */
@@ -129,6 +131,18 @@ public class AiReportExecutionService {
             }
 
             // 5. Run Report
+            if (outputType != null) {
+                try {
+                    valueOf(outputType.toUpperCase());
+                } catch (IllegalArgumentException e) {
+                    return ReportExecutionResult.failed(reportCode, ReportExecutionErrorCode.INVALID_OUTPUT_TYPE, "Output type '" + outputType + "' is not supported.");
+                }
+            }
+
+            if (outputType != null && !contentConverter.isTextOutput(outputType)) {
+                return ReportExecutionResult.failed(reportCode, ReportExecutionErrorCode.BINARY_OUTPUT_NOT_SUPPORTED_YET, "Binary output formats (like PDF, XLSX) are not yet supported for LLM analysis.");
+            }
+
             var runner = reportRunner.byReportEntity(report)
                     .withParams(conversionResult.convertedParameters());
 
@@ -136,12 +150,7 @@ public class AiReportExecutionService {
                 runner.withTemplateCode(effectiveTemplateCode);
             }
             if (outputType != null) {
-                // Note: ReportRunner.withOutputType expects io.jmix.reports.entity.ReportOutputType enum
-                try {
-                    runner.withOutputType(io.jmix.reports.entity.ReportOutputType.valueOf(outputType.toUpperCase()));
-                } catch (IllegalArgumentException e) {
-                    return ReportExecutionResult.failed(reportCode, ReportExecutionErrorCode.INVALID_OUTPUT_TYPE, "Output type '" + outputType + "' is not supported.");
-                }
+                runner.withOutputType(valueOf(outputType.toUpperCase()));
             }
 
             ReportOutputDocument document = runner.run();

@@ -477,8 +477,7 @@
             }
         }
     </style>
-</
-#if>
+    </#if>
 </head>
 <body>
 
@@ -499,8 +498,8 @@
             <div>Created: ${Root.fields.generatedAt!}</div>
             <#if Root.fields.dateRange??>
             <div class="header-meta-period">Period: ${Root.fields.dateRange}</div>
-        </
-        #if>
+            </#if>
+        </div>
     </div>
 </div>
 
@@ -529,8 +528,7 @@
             <dl class="kv">
                 <dt>Website:</dt>
                 <dd><#if Client.fields.website??><a href="${Client.fields.website}">${Client.fields.website}</a><#else>-
-                </
-                #if></dd>
+                </#if></dd>
                 <dt>Address:</dt>
                 <dd>${Client.fields.address!}</dd>
             </dl>
@@ -553,20 +551,17 @@
         <span class="flag-badge flag-success">VIP Customer</span>
         <#elseif FlagsAndIndicators.fields.isHighValue!false>
         <span class="flag-badge flag-success">High-Value</span>
-    </
-    #if>
+        </#if>
 
     <#if FlagsAndIndicators.fields.isNew!false>
     <span class="flag-badge flag-info">New Customer</span>
-</
-#if>
+    </#if>
 
 <#if FlagsAndIndicators.fields.hasPaymentIssues!false>
 <span class="flag-badge flag-danger">Payment Issues</span>
 <#elseif FlagsAndIndicators.fields.isCreditRisk!false>
 <span class="flag-badge flag-danger">Credit Risk</span>
-</
-#if>
+</#if>
 
 <#if FlagsAndIndicators.fields.isInactive!false>
 <span class="flag-badge flag-warning">Inactive</span>
@@ -590,7 +585,6 @@
 </div>
 </div>
 </#if>
-</div>
 
 
 <div class="section">
@@ -633,13 +627,10 @@
             ${order.fields.comment[0..49]}...
             <#else>
             ${order.fields.comment!"-"}
-        </
-        #if>
+            </#if>
         </td>
     </tr>
-    </
-    #list>
-
+    </#list>
     </tbody>
 </table>
 <#else>
@@ -695,17 +686,15 @@
                     <td style="text-align: center;">${statusItem.fields.count!0}</td>
                     <td class="amount">${statusItem.fields.amount}</td>
                 </tr>
-                </
-                #list>
+                </#list>
                 </tbody>
             </table>
             <#else>
             <div class="empty-message" style="padding: 20px;">
                 No invoices available
             </div>
-        </
-        #if>
-    </div>
+            </#if>
+        </div>
 
     <div class="metrics-card">
         <h4>Risk Indicators</h4>
@@ -753,8 +742,7 @@
         <td>${payment.fields.invoiceNumber!}</td>
         <td class="amount">${payment.fields.amount}</td>
     </tr>
-    </
-    #list>
+    </#list>
     </tbody>
 </table>
 <#else>
@@ -786,9 +774,8 @@
                         <div class="contact-name">${contact.fields.person!}</div>
                         <#if contact.fields.position?? && contact.fields.position != "">
                         <div class="contact-position">${contact.fields.position}</div>
-                    </
-                    #if>
-                </div>
+                        </#if>
+                    </div>
                 <span class="contact-status <#if (contact.fields.isActive!false)?string == 'true'>contact-active<#else>contact-inactive</#if>">
                                 <#if (contact.fields.isActive!false)?string == 'true'>Active<#else>Inactive</#if>
                 </span>
@@ -798,18 +785,15 @@
                 <#if contact.fields.phone?? && contact.fields.phone != "">
                 <dt>Phone:</dt>
                 <dd>${contact.fields.phone}</dd>
-            </
-            #if>
+                </#if>
             <#if contact.fields.email?? && contact.fields.email != "">
             <dt>Email:</dt>
             <dd><a href="mailto:${contact.fields.email}">${contact.fields.email}</a></dd>
-        </
-        #if>
+            </#if>
         <#if contact.fields.startDateFormatted?? && contact.fields.startDateFormatted != "">
         <dt>Since:</dt>
         <dd>${contact.fields.startDateFormatted}</dd>
-    </
-    #if>
+        </#if>
     <#if contact.fields.endDateFormatted?? && contact.fields.endDateFormatted != "">
     <dt>Until:</dt>
     <dd>${contact.fields.endDateFormatted}</dd>

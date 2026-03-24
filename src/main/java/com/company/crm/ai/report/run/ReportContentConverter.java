@@ -44,7 +44,7 @@ public class ReportContentConverter {
         return new ReportContentResult.BinaryUnsupported(outputType);
     }
 
-    private boolean isTextOutput(String outputType) {
+    public boolean isTextOutput(String outputType) {
         if (outputType == null) {
             return false;
         }
