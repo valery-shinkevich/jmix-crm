@@ -37,7 +37,7 @@
                     <hbox id="loginFormSettingsWrapper"
                           classNames="login-form-settings-wrapper">
                         <select id="localeSelect"
-                                classNames="login-form-locale-select"/>
+                                classNames="ml-auto login-form-locale-select"/>
                     </hbox>
                     <button id="submitBtn"
                             classNames="login-form-submit"
