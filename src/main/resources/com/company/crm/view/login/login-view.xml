@@ -36,9 +36,6 @@
                     </passwordField>
                     <hbox id="loginFormSettingsWrapper"
                           classNames="login-form-settings-wrapper">
-                        <checkbox id="rememberMe"
-                                  label="msg://loginForm.rememberMe"
-                                  classNames="login-form-remember-me"/>
                         <select id="localeSelect"
                                 classNames="login-form-locale-select"/>
                     </hbox>

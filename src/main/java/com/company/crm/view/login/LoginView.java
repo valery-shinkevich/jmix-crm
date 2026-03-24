@@ -16,7 +16,6 @@ import io.jmix.core.CoreProperties;
 import io.jmix.core.MessageTools;
 import io.jmix.core.security.AccessDeniedException;
 import io.jmix.flowui.DialogWindows;
-import io.jmix.flowui.component.checkbox.JmixCheckbox;
 import io.jmix.flowui.component.select.JmixSelect;
 import io.jmix.flowui.component.textfield.JmixPasswordField;
 import io.jmix.flowui.component.textfield.TypedTextField;
@@ -58,8 +57,6 @@ public class LoginView extends StandardView implements LocaleChangeObserver {
     private TypedTextField<String> usernameField;
     @ViewComponent
     private JmixPasswordField passwordField;
-    @ViewComponent
-    private JmixCheckbox rememberMe;
     @ViewComponent
     private JmixSelect<Locale> localeSelect;
     @ViewComponent
@@ -142,7 +139,7 @@ public class LoginView extends StandardView implements LocaleChangeObserver {
             loginViewSupport.authenticate(
                     AuthDetails.of(username, password)
                             .withLocale(localeSelect.getValue())
-                            .withRememberMe(rememberMe.getValue())
+                            .withRememberMe(false)
             );
         } catch (final BadCredentialsException | DisabledException | LockedException | AccessDeniedException e) {
             log.warn("Login failed for user '{}': {}", username, e.toString());
@@ -166,7 +163,6 @@ public class LoginView extends StandardView implements LocaleChangeObserver {
         usernameField.setRequiredMessage(messageBundle.getMessage("loginForm.errorUsername"));
         passwordField.setLabel(messageBundle.getMessage("loginForm.password"));
         passwordField.setRequiredMessage(messageBundle.getMessage("loginForm.errorPassword"));
-        rememberMe.setLabel(messageBundle.getMessage("loginForm.rememberMe"));
         submitBtn.setText(messageBundle.getMessage("loginForm.submit"));
     }
 }
