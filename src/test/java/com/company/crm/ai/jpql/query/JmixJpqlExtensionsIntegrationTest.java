@@ -1,7 +1,7 @@
 package com.company.crm.ai.jpql.query;
 
 import com.company.crm.AbstractTest;
-import com.company.crm.ai.tool.JpqlQueryTool;
+import com.company.crm.ai.tool.JpqlExecutorTool;
 import com.company.crm.util.extenstion.AuthenticatedAs;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,21 +25,21 @@ class JmixJpqlExtensionsIntegrationTest extends AbstractTest {
     private static final BigDecimal EXPECTED_AVERAGE_ORDER = new BigDecimal("12087.75");
     private static final LocalDate REFERENCE_DATE = LocalDate.of(2024, 2, 20);
 
-    private JpqlQueryTool jpqlQueryTool;
+    private JpqlExecutorTool jpqlExecutorTool;
 
     @Autowired
     private AiJpqlQueryService aiJpqlQueryService;
 
     @BeforeEach
     void setUp() {
-        jpqlQueryTool = new JpqlQueryTool(aiJpqlQueryService);
+        jpqlExecutorTool = JpqlExecutorTool.create(applicationContext);
         setupTestData();
     }
 
     @Test
     void testDateTimeFunctions() {
         // given
-        QueryExecutionResult result = jpqlQueryTool.executeQuery(
+        QueryExecutionResult result = jpqlExecutorTool.executeQuery(
                 "SELECT EXTRACT(YEAR FROM o.date) AS orderYear, EXTRACT(MONTH FROM o.date) AS orderMonth, COUNT(o) AS orderCount " +
                         "FROM Order_ o GROUP BY EXTRACT(YEAR FROM o.date), EXTRACT(MONTH FROM o.date) ORDER BY orderYear, orderMonth",
                 JpqlParameters.empty(),
@@ -67,7 +67,7 @@ class JmixJpqlExtensionsIntegrationTest extends AbstractTest {
     @Test
     void testMathematicalFunctions() {
         // given
-        QueryExecutionResult result = jpqlQueryTool.executeQuery(
+        QueryExecutionResult result = jpqlExecutorTool.executeQuery(
                 "SELECT o.total AS originalTotal, (o.total * 2) AS doubledTotal FROM Order_ o WHERE o.total > 0 ORDER BY o.total",
                 JpqlParameters.empty(),
                 List.of("originalTotal", "doubledTotal"), null, null
@@ -92,7 +92,7 @@ class JmixJpqlExtensionsIntegrationTest extends AbstractTest {
     @Test
     void testStringFunctions() {
         // given
-        QueryExecutionResult result = jpqlQueryTool.executeQuery(
+        QueryExecutionResult result = jpqlExecutorTool.executeQuery(
                 "SELECT " +
                         "UPPER(c.name) AS upperName, " +
                         "LOWER(c.name) AS lowerName, " +
@@ -121,7 +121,7 @@ class JmixJpqlExtensionsIntegrationTest extends AbstractTest {
     @Test
     void testConditionalFunctions() {
         // given
-        QueryExecutionResult result = jpqlQueryTool.executeQuery(
+        QueryExecutionResult result = jpqlExecutorTool.executeQuery(
                 "SELECT " +
                         "c.name AS clientName, " +
                         "CASE WHEN COUNT(o) > 2 THEN 'High Volume' WHEN COUNT(o) > 0 THEN 'Regular' ELSE 'No Orders' END AS clientCategory, " +
@@ -156,7 +156,7 @@ class JmixJpqlExtensionsIntegrationTest extends AbstractTest {
     @Test
     void testTypeConversion() {
         // given
-        QueryExecutionResult result = jpqlQueryTool.executeQuery(
+        QueryExecutionResult result = jpqlExecutorTool.executeQuery(
                 "SELECT c.name AS clientName, o.total AS orderTotal FROM Client c JOIN c.orders o ORDER BY o.total DESC",
                 JpqlParameters.empty(),
                 List.of("clientName", "orderTotal"), null, null
@@ -177,7 +177,7 @@ class JmixJpqlExtensionsIntegrationTest extends AbstractTest {
     @Test
     void testAggregateFunctions() {
         // given
-        QueryExecutionResult result = jpqlQueryTool.executeQuery(
+        QueryExecutionResult result = jpqlExecutorTool.executeQuery(
                 "SELECT " +
                         "COUNT(o) AS orderCount, " +
                         "SUM(o.total) AS totalRevenue, " +
@@ -213,7 +213,7 @@ class JmixJpqlExtensionsIntegrationTest extends AbstractTest {
     @Test
     void testDateMacros() {
         // given
-        QueryExecutionResult recentResult = jpqlQueryTool.executeQuery(
+        QueryExecutionResult recentResult = jpqlExecutorTool.executeQuery(
                 "SELECT o.number AS orderNumber, o.date AS orderDate, o.total AS orderTotal " +
                         "FROM Order_ o WHERE @between(o.date, now-10000, now+1, day) ORDER BY o.date DESC",
                 JpqlParameters.empty(),
@@ -224,7 +224,7 @@ class JmixJpqlExtensionsIntegrationTest extends AbstractTest {
         assertThat(recentResult.data()).isNotEmpty();
 
         // Test @today macro
-        QueryExecutionResult todayResult = jpqlQueryTool.executeQuery(
+        QueryExecutionResult todayResult = jpqlExecutorTool.executeQuery(
                 "SELECT COUNT(o) AS todayOrderCount FROM Order_ o WHERE @today(o.date)",
                 JpqlParameters.empty(),
                 List.of("todayOrderCount"), null, null
@@ -255,7 +255,7 @@ class JmixJpqlExtensionsIntegrationTest extends AbstractTest {
     @Test
     void testRegexpFunction() {
         // given
-        QueryExecutionResult result = jpqlQueryTool.executeQuery(
+        QueryExecutionResult result = jpqlExecutorTool.executeQuery(
                 "SELECT c.name AS clientName FROM Client c WHERE UPPER(c.name) LIKE '%CORP%' OR UPPER(c.name) LIKE '%ENTERPRISE%'",
                 JpqlParameters.empty(),
                 List.of("clientName"), null, null

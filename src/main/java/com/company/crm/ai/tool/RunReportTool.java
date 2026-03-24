@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.model.ToolContext;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
+import org.springframework.context.ApplicationContext;
 
 import java.util.Collection;
 import java.util.Map;
@@ -26,7 +27,12 @@ public class RunReportTool implements CrmAiTool {
     private final AiReportExecutionService executionService;
     private final Collection<String> allowedReportCodes;
 
-    public RunReportTool(AiReportExecutionService executionService, Collection<String> allowedReportCodes) {
+    public static RunReportTool create(ApplicationContext applicationContext,
+                                       Collection<String> allowedReportCodes) {
+        return new RunReportTool(applicationContext.getBean(AiReportExecutionService.class), allowedReportCodes);
+    }
+
+    private RunReportTool(AiReportExecutionService executionService, Collection<String> allowedReportCodes) {
         this.executionService = executionService;
         this.allowedReportCodes = allowedReportCodes;
     }

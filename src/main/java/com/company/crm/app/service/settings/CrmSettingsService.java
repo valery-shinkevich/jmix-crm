@@ -15,6 +15,11 @@ public class CrmSettingsService {
         this.appSettings = appSettings;
     }
 
+    public CrmSettings saveSettings(CrmSettings settings) {
+        appSettings.save(settings);
+        return settings;
+    }
+
     public CrmSettings loadSettings() {
         return appSettings.load(CrmSettings.class);
     }

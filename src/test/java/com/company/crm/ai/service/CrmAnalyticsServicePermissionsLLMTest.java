@@ -1,8 +1,7 @@
 package com.company.crm.ai.service;
 
 import com.company.crm.AbstractTest;
-import com.company.crm.ai.jpql.query.AiJpqlQueryService;
-import com.company.crm.ai.tool.JpqlQueryTool;
+import com.company.crm.ai.tool.JpqlExecutorTool;
 import com.company.crm.model.client.Client;
 import com.company.crm.security.role.UiMinimalRole;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,8 +24,6 @@ class CrmAnalyticsServicePermissionsLLMTest extends AbstractTest {
 
     @Autowired
     private ChatClient.Builder chatClientBuilder;
-    @Autowired
-    private AiJpqlQueryService aiJpqlQueryService;
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -52,7 +49,7 @@ class CrmAnalyticsServicePermissionsLLMTest extends AbstractTest {
                                 Do not add extra text outside the required tool calls.
                                 """)
                         .build(),
-                new JpqlQueryTool(aiJpqlQueryService),
+                JpqlExecutorTool.create(applicationContext),
                 objectMapper
         );
     }
@@ -122,58 +119,58 @@ class CrmAnalyticsServicePermissionsLLMTest extends AbstractTest {
     private record QueryProbeResult(boolean success, String errorMessage, String firstValue) {
     }
 
-    private record JpqlQueryProbe(ChatClient chatClient, JpqlQueryTool jpqlQueryTool, ObjectMapper objectMapper) {
+    private record JpqlQueryProbe(ChatClient chatClient, JpqlExecutorTool jpqlExecutorTool, ObjectMapper objectMapper) {
 
         private QueryProbeResult execute(String jpqlQuery, Map<String, Object> parameters, List<String> selectAliases) {
-                try {
-                    QueryProbeCollectorTool collectorTool = new QueryProbeCollectorTool();
-                    String prompt = buildExecuteQueryPrompt(jpqlQuery, parameters, selectAliases);
+            try {
+                QueryProbeCollectorTool collectorTool = new QueryProbeCollectorTool();
+                String prompt = buildExecuteQueryPrompt(jpqlQuery, parameters, selectAliases);
 
-                    chatClient.prompt()
-                            .user(prompt)
-                            .tools(jpqlQueryTool, collectorTool)
-                            .call()
-                            .content();
+                chatClient.prompt()
+                        .user(prompt)
+                        .tools(jpqlExecutorTool, collectorTool)
+                        .call()
+                        .content();
 
-                    QueryProbeResult result = collectorTool.getResult();
-                    if (result == null) {
-                        return new QueryProbeResult(false, "Query probe did not submit result", "");
-                    }
-                    return result;
-                } catch (Exception e) {
-                    throw new IllegalStateException("Failed to execute JPQL query through LLM callback", e);
+                QueryProbeResult result = collectorTool.getResult();
+                if (result == null) {
+                    return new QueryProbeResult(false, "Query probe did not submit result", "");
                 }
-            }
-
-            private String buildExecuteQueryPrompt(String jpqlQuery, Map<String, Object> parameters, List<String> selectAliases) throws Exception {
-                return """
-                        Call executeQuery exactly once with these exact arguments:
-                        - jpqlQuery: %s
-                        - parameters: %s
-                        - selectAliases: %s
-                        - offset: 0
-                        - limit: 5
-                        
-                        Rules for executeQuery:
-                        - Keep jpqlQuery byte-for-byte unchanged.
-                        - Keep parameter keys unchanged (e.g. clientId stays clientId).
-                        - Do not add or remove parameters.
-                        - parameters must not be null.
-                        - If parameters contains clientId, pass clientId exactly as provided.
-                        
-                        After executeQuery returns, call submitQueryProbeResult exactly once with:
-                        - success from executeQuery.success
-                        - errorMessage from executeQuery.errorMessage, or empty string if none
-                        - firstValue from the first returned row under the first select alias, converted to string, or empty string if unavailable
-                        
-                        Do not produce any plain-text answer.
-                        """.formatted(
-                        objectMapper.writeValueAsString(jpqlQuery),
-                        objectMapper.writeValueAsString(parameters),
-                        objectMapper.writeValueAsString(selectAliases)
-                );
+                return result;
+            } catch (Exception e) {
+                throw new IllegalStateException("Failed to execute JPQL query through LLM callback", e);
             }
         }
+
+        private String buildExecuteQueryPrompt(String jpqlQuery, Map<String, Object> parameters, List<String> selectAliases) throws Exception {
+            return """
+                    Call executeQuery exactly once with these exact arguments:
+                    - jpqlQuery: %s
+                    - parameters: %s
+                    - selectAliases: %s
+                    - offset: 0
+                    - limit: 5
+                    
+                    Rules for executeQuery:
+                    - Keep jpqlQuery byte-for-byte unchanged.
+                    - Keep parameter keys unchanged (e.g. clientId stays clientId).
+                    - Do not add or remove parameters.
+                    - parameters must not be null.
+                    - If parameters contains clientId, pass clientId exactly as provided.
+                    
+                    After executeQuery returns, call submitQueryProbeResult exactly once with:
+                    - success from executeQuery.success
+                    - errorMessage from executeQuery.errorMessage, or empty string if none
+                    - firstValue from the first returned row under the first select alias, converted to string, or empty string if unavailable
+                    
+                    Do not produce any plain-text answer.
+                    """.formatted(
+                    objectMapper.writeValueAsString(jpqlQuery),
+                    objectMapper.writeValueAsString(parameters),
+                    objectMapper.writeValueAsString(selectAliases)
+            );
+        }
+    }
 
     private static class QueryProbeCollectorTool {
         private QueryProbeResult result;

@@ -4,7 +4,7 @@ import com.company.crm.AbstractTest;
 import com.company.crm.ai.model.AiConversation;
 import com.company.crm.ai.report.introspection.AiReportModelDescriptorYamlExporter;
 import com.company.crm.ai.service.AiConversationService;
-import com.company.crm.ai.tool.JmixReportDiscoveryTool;
+import com.company.crm.ai.tool.ReportsDiscoveryTool;
 import com.company.crm.ai.tool.RunReportTool;
 import com.company.crm.model.client.Client;
 import com.company.crm.util.ai.LLMJudge;
@@ -54,8 +54,8 @@ class RunReportToolLLMTest extends AbstractTest {
                 chatClientBuilder.clone()
                         .defaultSystem("You are a helpful assistant. Use report tools to answer questions.")
                         .build(),
-                new JmixReportDiscoveryTool(reportYamlExporter, allowedReports),
-                new RunReportTool(executionService, allowedReports)
+                ReportsDiscoveryTool.create(applicationContext, allowedReports),
+                RunReportTool.create(applicationContext, allowedReports)
         );
 
         this.llmJudge = llmJudgeBuilder
@@ -147,7 +147,7 @@ class RunReportToolLLMTest extends AbstractTest {
         private final ChatClient chatClient;
         private final Object[] tools;
 
-        private ReportChatAssistant(ChatClient chatClient, JmixReportDiscoveryTool discoveryTool, RunReportTool runReportTool) {
+        private ReportChatAssistant(ChatClient chatClient, ReportsDiscoveryTool discoveryTool, RunReportTool runReportTool) {
             this.chatClient = chatClient;
             this.tools = new Object[]{discoveryTool, runReportTool};
         }

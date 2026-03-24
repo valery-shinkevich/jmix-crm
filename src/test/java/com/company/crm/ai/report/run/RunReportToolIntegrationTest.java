@@ -23,9 +23,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 class RunReportToolIntegrationTest extends AbstractTest {
 
     @Autowired
-    private AiReportExecutionService executionService;
-
-    @Autowired
     private AiConversationService aiConversationService;
 
     @Autowired
@@ -36,7 +33,7 @@ class RunReportToolIntegrationTest extends AbstractTest {
     @BeforeEach
     @Override
     protected void beforeEach() {
-        reportTool = new RunReportTool(executionService, List.of("client-360-report", "unknown-report"));
+        reportTool = RunReportTool.create(applicationContext, List.of("client-360-report", "unknown-report"));
     }
 
     @Test

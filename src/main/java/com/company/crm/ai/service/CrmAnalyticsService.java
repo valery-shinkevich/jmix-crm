@@ -5,10 +5,8 @@ import com.company.crm.ai.jpql.query.AiJpqlQueryService;
 import com.company.crm.ai.report.introspection.AiReportModelDescriptorYamlExporter;
 import com.company.crm.ai.report.run.AiReportExecutionService;
 import com.company.crm.ai.service.AiAttachmentMediaResolver.AttachmentRef;
-import com.company.crm.ai.tool.JmixJpaEntityDiscoveryTool;
-import com.company.crm.ai.tool.JmixReportDiscoveryTool;
-import com.company.crm.ai.tool.JpqlQueryTool;
-import com.company.crm.ai.tool.RunReportTool;
+import com.company.crm.ai.tool.CrmAiTools;
+import com.company.crm.model.base.UuidEntity;
 import com.company.crm.model.catalog.category.Category;
 import com.company.crm.model.catalog.item.CategoryItem;
 import com.company.crm.model.catalog.item.CategoryItemComment;
@@ -32,6 +30,7 @@ import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.ai.content.Media;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -49,29 +48,14 @@ public class CrmAnalyticsService {
 
     private static final Logger log = LoggerFactory.getLogger(CrmAnalyticsService.class);
 
-    private static final Set<Class<?>> CRM_ENTITIES = Set.of(
-            Client.class, Order.class, OrderItem.class, Category.class,
-            CategoryItem.class, CategoryItemComment.class, Invoice.class,
-            Payment.class, User.class, Contact.class
-    );
-
-    // Whitelist for reports allowed in this service
-    private static final List<String> CRM_REPORTS = List.of(
-            "client-360-report",
-            "category-cashflow-risk-report"
-    );
-
     private static final String CRM_MESSAGE_TYPE_METADATA_KEY = "crmMessageType";
     private static final String ATTACHMENT_MESSAGE_TYPE = "ATTACHMENT";
+    private final ApplicationContext applicationContext;
 
     @Value("${spring.ai.openai.api-key:}")
     private String openAiApiKey;
 
     private final ChatClient chatClient;
-    private final JpqlQueryTool jpqlQueryTool;
-    private final JmixJpaEntityDiscoveryTool jmixJpaEntityDiscoveryTool;
-    private final JmixReportDiscoveryTool jmixReportDiscoveryTool;
-    private final RunReportTool runReportTool;
     private final AiAttachmentMediaResolver attachmentMediaResolver;
 
     private final Messages messages;
@@ -87,8 +71,8 @@ public class CrmAnalyticsService {
             MetadataTools metadataTools,
             ChatMemoryRepository chatMemoryRepository,
             AiAttachmentMediaResolver attachmentMediaResolver,
-            Messages messages
-    ) {
+            Messages messages,
+            ApplicationContext applicationContext) {
         ChatMemory chatMemory = MessageWindowChatMemory.builder()
                 .chatMemoryRepository(chatMemoryRepository)
                 .build();
@@ -100,13 +84,9 @@ public class CrmAnalyticsService {
                         MessageChatMemoryAdvisor.builder(chatMemory).build()
                 )
                 .build();
-
-        this.jpqlQueryTool = new JpqlQueryTool(aiJpqlQueryService);
-        this.jmixJpaEntityDiscoveryTool = new JmixJpaEntityDiscoveryTool(metadataTools, entityYamlExporter, CRM_ENTITIES);
-        this.jmixReportDiscoveryTool = new JmixReportDiscoveryTool(reportYamlExporter, CRM_REPORTS);
-        this.runReportTool = new RunReportTool(aiReportExecutionService, CRM_REPORTS);
         this.attachmentMediaResolver = attachmentMediaResolver;
         this.messages = messages;
+        this.applicationContext = applicationContext;
     }
 
     public boolean isAiIntegrationActive() {
@@ -166,8 +146,25 @@ public class CrmAnalyticsService {
             promptSpec = promptSpec.toolContext(Map.of("conversationId", conversationUuid));
         }
 
+        Set<Class<? extends UuidEntity>> allowedEntities = Set.of(
+                Client.class, Order.class, OrderItem.class, Category.class,
+                CategoryItem.class, CategoryItemComment.class, Invoice.class,
+                Payment.class, User.class, Contact.class
+        );
+
+        List<String> allowedReports = List.of(
+                "client-360-report",
+                "category-cashflow-risk-report"
+        );
+
         return promptSpec
-                .tools(jpqlQueryTool, jmixJpaEntityDiscoveryTool, jmixReportDiscoveryTool, runReportTool)
+                .tools(CrmAiTools.builder(applicationContext)
+                        .jpqlQueryExecutorTool()
+                        .viewsDiscoveryTool()
+                        .entitiesDiscoveryTool(allowedEntities)
+                        .reportsDiscoveryTool(allowedReports)
+                        .runReportTool(allowedReports)
+                        .build())
                 .call()
                 .content();
     }
