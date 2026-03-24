@@ -7,7 +7,7 @@ import org.springframework.context.ApplicationContext;
 import java.util.Collection;
 import java.util.HashSet;
 
-public record CrmAiTools(Collection<CrmAiTool> tools) {
+public record CrmAiTools(CrmAiTool[] tools) {
 
     public static Builder builder(ApplicationContext applicationContext) {
         return new Builder(applicationContext);
@@ -53,8 +53,12 @@ public record CrmAiTools(Collection<CrmAiTool> tools) {
             return this;
         }
 
-        public Collection<CrmAiTool> build() {
-            return new CrmAiTools(tools).tools();
+        public CrmAiTools build() {
+            return new CrmAiTools(tools.toArray(new CrmAiTool[0]));
+        }
+
+        public Object[] buildToolsArray() {
+            return build().tools();
         }
     }
 }

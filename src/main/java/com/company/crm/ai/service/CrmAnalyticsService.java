@@ -164,7 +164,7 @@ public class CrmAnalyticsService {
                         .entitiesDiscoveryTool(allowedEntities)
                         .reportsDiscoveryTool(allowedReports)
                         .runReportTool(allowedReports)
-                        .build())
+                        .buildToolsArray())
                 .call()
                 .content();
     }
