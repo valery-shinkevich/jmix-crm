@@ -6,6 +6,7 @@ import com.company.crm.ai.service.CrmAnalyticsService;
 import com.company.crm.model.client.Client;
 import com.company.crm.model.invoice.Invoice;
 import com.company.crm.model.invoice.InvoiceStatus;
+import com.company.crm.model.user.User;
 import com.company.crm.util.ai.LLMJudge;
 import com.company.crm.util.ai.LLMJudgeBuilder;
 import org.junit.jupiter.api.BeforeEach;
@@ -511,7 +512,6 @@ class CrmAnalyticsServiceLLMTest extends AbstractAiTest {
                     Should include client names and potentially other details like revenue, orders, etc.
                     """, alphaClientId, betaClientId, charlieClientId);
             llmJudge.evaluateAnswerWithJudge(question, response, expectedAnswer);
-
         }
     }
 
@@ -622,15 +622,22 @@ class CrmAnalyticsServiceLLMTest extends AbstractAiTest {
     }
 
     private void setupKnownTestData() {
+        User manager = testUsers.manager();
         var testClient1 = entities.client("TestClient_Alpha");
+        testClient1.setAccountManager(manager);
+        entities.saveWithoutReload(testClient1);
         createTestOrder(testClient1, "ALPHA-001", new BigDecimal("2000.00"), LocalDate.now().minusDays(5));
         createTestOrder(testClient1, "ALPHA-002", new BigDecimal("3000.00"), LocalDate.now().minusDays(15));
 
         var testClient2 = entities.client("TestClient_Beta");
+        testClient2.setAccountManager(manager);
+        entities.saveWithoutReload(testClient2);
         createTestOrder(testClient2, "BETA-001", new BigDecimal("1500.00"), LocalDate.now().minusDays(10));
         createTestOrder(testClient2, "BETA-002", new BigDecimal("2500.00"), LocalDate.now().minusDays(20));
 
         var testClient3 = entities.client("TestClient_Charlie");
+        testClient3.setAccountManager(manager);
+        entities.saveWithoutReload(testClient3);
         createTestOrder(testClient3, "CHARLIE-001", new BigDecimal("3500.00"), LocalDate.now().minusDays(8));
         createTestOrder(testClient3, "CHARLIE-002", new BigDecimal("2500.00"), LocalDate.now().minusDays(18));
 

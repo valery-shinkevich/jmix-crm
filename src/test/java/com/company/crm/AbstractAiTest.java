@@ -2,6 +2,9 @@ package com.company.crm;
 
 import org.springframework.test.context.junit.jupiter.EnabledIf;
 
-@EnabledIf("#{environment['test.ai.enabled'] == 'true' && environment['spring.ai.openai.api-key'] != null && environment['spring.ai.openai.api-key'] != '<<YOUR_API_KEY>>'}")
+@EnabledIf(expression = """
+        #{environment.getProperty('tests.ai.enabled') == 'true'
+        && environment.getProperty('spring.ai.openai.api-key') != '<YOUR_API_KEY>'}""",
+        loadContext = true)
 public class AbstractAiTest extends AbstractTest {
 }
