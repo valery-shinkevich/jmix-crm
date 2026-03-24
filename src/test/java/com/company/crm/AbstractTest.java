@@ -4,6 +4,7 @@ import com.company.crm.app.util.constant.CrmConstants;
 import com.company.crm.model.user.User;
 import com.company.crm.util.Entities;
 import com.company.crm.util.TestUsers;
+import com.company.crm.util.ai.LLMJudgeBuilder;
 import com.company.crm.util.extenstion.AuthenticatedAsExtension;
 import com.company.crm.util.extenstion.DataCleaner;
 import io.jmix.core.DataManager;
@@ -24,7 +25,7 @@ import java.util.function.Consumer;
 @ExtendWith({AuthenticatedAsExtension.class, DataCleaner.class})
 @ActiveProfiles(CrmConstants.SpringProfiles.TEST)
 @SpringBootTest(
-        classes = {CRMApplication.class, Entities.class, TestUsers.class},
+        classes = {CRMApplication.class, Entities.class, TestUsers.class, LLMJudgeBuilder.class},
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class AbstractTest {
 
@@ -72,16 +73,32 @@ public class AbstractTest {
         runWithUser(testUsers.manager(), runnable);
     }
 
+    protected <T> T withManager(SystemAuthenticator.AuthenticatedOperation<T> operation) {
+        return withUser(testUsers.manager(), operation);
+    }
+
     protected void runWithSupervisor(Runnable runnable) {
         runWithUser(testUsers.supervisor(), runnable);
+    }
+
+    protected <T> T withSupervisor(SystemAuthenticator.AuthenticatedOperation<T> operation) {
+        return withUser(testUsers.supervisor(), operation);
     }
 
     protected void runWithUser(User user, Runnable runnable) {
         runWithUser(user.getUsername(), runnable);
     }
 
+    protected <T> T withUser(User user, SystemAuthenticator.AuthenticatedOperation<T> operation) {
+        return withUser(user.getUsername(), operation);
+    }
+
     protected void runWithUser(String username, Runnable runnable) {
         systemAuthenticator.runWithUser(username, runnable);
+    }
+
+    protected <T> T withUser(String username, SystemAuthenticator.AuthenticatedOperation<T> operation) {
+        return systemAuthenticator.withUser(username, operation);
     }
 
     protected boolean cleanDataAfterEach() {

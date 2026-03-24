@@ -15,6 +15,7 @@ import com.vaadin.flow.server.VaadinSession;
 import io.jmix.core.CoreProperties;
 import io.jmix.core.MessageTools;
 import io.jmix.core.security.AccessDeniedException;
+import io.jmix.flowui.DialogWindows;
 import io.jmix.flowui.component.checkbox.JmixCheckbox;
 import io.jmix.flowui.component.select.JmixSelect;
 import io.jmix.flowui.component.textfield.JmixPasswordField;
@@ -80,6 +81,8 @@ public class LoginView extends StandardView implements LocaleChangeObserver {
     private MessageBundle messageBundle;
     @Autowired
     private ViewValidation viewValidation;
+    @Autowired
+    private DialogWindows dialogWindows;
 
     @Value("${ui.login.defaultUsername:}")
     private String defaultUsername;
@@ -148,6 +151,11 @@ public class LoginView extends StandardView implements LocaleChangeObserver {
             errorMessageDescription.setText(messageBundle.getMessage("loginForm.badCredentials"));
             errorMessage.setVisible(true);
         }
+    }
+
+    @Subscribe(id = "usageBtn", subject = "clickListener")
+    public void onUsageBtnClick(final ClickEvent<JmixButton> event) {
+        dialogWindows.view(this, com.company.crm.view.usagehelp.UsageHelpView.class).open();
     }
 
     @Override

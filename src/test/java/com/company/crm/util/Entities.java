@@ -6,14 +6,15 @@ import com.company.crm.model.catalog.item.CategoryItem;
 import com.company.crm.model.catalog.item.UomType;
 import com.company.crm.model.client.Client;
 import com.company.crm.model.client.ClientType;
+import com.company.crm.model.contact.Contact;
 import com.company.crm.model.invoice.Invoice;
+import com.company.crm.model.invoice.InvoiceStatus;
 import com.company.crm.model.order.Order;
 import com.company.crm.model.order.OrderItem;
 import com.company.crm.model.order.OrderStatus;
 import com.company.crm.model.payment.Payment;
 import com.company.crm.model.user.User;
 import io.jmix.core.UnconstrainedDataManager;
-import net.datafaker.Faker;
 import org.springframework.boot.test.context.TestComponent;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -24,8 +25,6 @@ import java.util.function.Consumer;
 
 @TestComponent
 public class Entities {
-
-    public static final Faker FAKER = new Faker();
 
     private static final ThreadLocalRandom RANDOM = ThreadLocalRandom.current();
 
@@ -64,11 +63,48 @@ public class Entities {
         });
     }
 
+    public Client client(String name, int daysAgo) {
+        return client(name, daysAgo, randomClientType());
+    }
+
+    public Client client(String name, int daysAgo, ClientType type) {
+        Client client = createAndSaveEntity(Client.class, c -> {
+            c.setName(name);
+            c.setType(type);
+            c.setAddress(address());
+        });
+        client.setCreatedDate(
+                LocalDate.now().minusDays(daysAgo)
+                        .atStartOfDay()
+                        .atZone(java.time.ZoneId.systemDefault())
+                        .toOffsetDateTime());
+        return saveWithoutReload(client);
+    }
+
     public Order order(Client client, LocalDate date, OrderStatus status) {
         return createAndSaveEntity(Order.class, order -> {
             order.setClient(client);
             order.setDate(date);
             order.setStatus(status);
+        });
+    }
+
+    public Order order(Client client, String orderNumber, LocalDate date, com.company.crm.model.order.OrderStatus status, BigDecimal total) {
+        Order order = createEntity(Order.class);
+        order.setClient(client);
+        order.setNumber(orderNumber);
+        order.setDate(date);
+        order.setStatus(status);
+        order.setTotal(total);
+        return saveWithoutReload(order);
+    }
+
+    public Order order(Client client, LocalDate date, com.company.crm.model.order.OrderStatus status, BigDecimal total) {
+        return createAndSaveEntity(Order.class, order -> {
+            order.setClient(client);
+            order.setDate(date);
+            order.setStatus(status);
+            order.setTotal(total);
         });
     }
 
@@ -84,6 +120,34 @@ public class Entities {
             payment.setInvoice(invoice);
             payment.setDate(date);
             payment.setAmount(BigDecimal.TEN);
+        });
+    }
+
+
+    public Invoice invoice(Client client, Order order, BigDecimal total, InvoiceStatus status, LocalDate invoiceDate) {
+        return createAndSaveEntity(Invoice.class, invoice -> {
+            invoice.setClient(client);
+            invoice.setOrder(order);
+            invoice.setTotal(total);
+            invoice.setStatus(status);
+            invoice.setDate(invoiceDate);
+        });
+    }
+
+    public Payment payment(Invoice invoice, LocalDate date, BigDecimal amount) {
+        return createAndSaveEntity(Payment.class, payment -> {
+            payment.setInvoice(invoice);
+            payment.setDate(date);
+            payment.setAmount(amount);
+        });
+    }
+
+    public Contact contact(Client client, String person, String position) {
+        return createAndSaveEntity(Contact.class, contact -> {
+            contact.setClient(client);
+            contact.setPerson(person);
+            contact.setPosition(position);
+            contact.setStartDate(LocalDate.now().minusMonths(6));
         });
     }
 
@@ -115,14 +179,13 @@ public class Entities {
     }
 
     public Address address() {
-        var fakeAddress = FAKER.address();
         Address address = dataManager.create(Address.class);
-        address.setCountry(fakeAddress.country());
-        address.setCity(fakeAddress.city());
-        address.setStreet(fakeAddress.streetAddress());
-        address.setBuilding(fakeAddress.buildingNumber());
-        address.setPostalCode(fakeAddress.postcode());
-        address.setApartment(RANDOM.nextInt(50) + "");
+        address.setCountry("Germany");
+        address.setCity("Munich");
+        address.setStreet("Leopoldstraße");
+        address.setBuilding(String.valueOf(RANDOM.nextInt(1, 200)));
+        address.setPostalCode("80802");
+        address.setApartment(String.valueOf(RANDOM.nextInt(1, 50)));
         return address;
     }
 

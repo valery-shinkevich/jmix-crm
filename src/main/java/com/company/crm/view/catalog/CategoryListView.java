@@ -55,6 +55,8 @@ import static com.company.crm.app.util.ui.datacontext.DataContextUtils.installSo
 public class CategoryListView extends StandardListView<Category> {
 
     @Autowired
+    private Messages messages;
+    @Autowired
     private DataManager dataManager;
     @Autowired
     private UiComponents uiComponents;
@@ -67,8 +69,6 @@ public class CategoryListView extends StandardListView<Category> {
     private CollectionContainer<Category> categoriesDc;
     @ViewComponent
     private TreeDataGrid<Category> categoriesDataGrid;
-    @Autowired
-    private Messages messages;
     @ViewComponent("categoriesDataGrid.editAction")
     private EditAction<Category> editAction;
     @ViewComponent

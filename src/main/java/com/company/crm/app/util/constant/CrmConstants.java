@@ -16,8 +16,6 @@ public final class CrmConstants {
         public static final String MAIN = "MainView";
         public static final String LOGIN = "LoginView";
 
-        public static final String CATALOG = "CatalogView";
-
         public static final String CATEGORY_LIST = "Category.list";
         public static final String CATEGORY_DETAIL = "Category.detail";
 
@@ -26,8 +24,6 @@ public final class CrmConstants {
 
         public static final String CLIENT_LIST = "Client.list";
         public static final String CLIENT_DETAIL = "Client.detail";
-
-        public static final String FINANCE = "FinanceView";
 
         public static final String HOME = "HomeView";
 
@@ -46,6 +42,11 @@ public final class CrmConstants {
         public static final String USER_DETAIL = "User.detail";
 
         public static final String USER_TASK_LIST = "UserTask.list";
+
+        public static final String USAGE_HELP = "UsageHelpView";
+
+        public static final String AI_CONVERSATION_LIST = "AiConversation.list";
+        public static final String AI_CONVERSATION_DETAIL = "AiConversation.detail";
 
         private ViewIds() {
         }

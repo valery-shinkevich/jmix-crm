@@ -1,5 +1,8 @@
 package com.company.crm.security.role;
 
+import com.company.crm.ai.model.AiConversation;
+import com.company.crm.ai.model.AiConversationAttachment;
+import com.company.crm.ai.model.ChatMessage;
 import com.company.crm.model.address.Address;
 import com.company.crm.model.catalog.category.Category;
 import com.company.crm.model.catalog.item.CategoryItem;
@@ -15,6 +18,7 @@ import com.company.crm.model.user.User;
 import com.company.crm.model.user.activity.UserActivity;
 import com.company.crm.model.user.activity.userprofile.UserProfileUserActivity;
 import com.company.crm.model.user.task.UserTask;
+import io.jmix.reportsflowui.role.ReportsRunRole;
 import io.jmix.security.model.EntityAttributePolicyAction;
 import io.jmix.security.model.EntityPolicyAction;
 import io.jmix.security.model.SecurityScope;
@@ -26,14 +30,22 @@ import io.jmix.securityflowui.role.annotation.MenuPolicy;
 import io.jmix.securityflowui.role.annotation.ViewPolicy;
 
 @ResourceRole(name = "Manager", code = ManagerRole.CODE, scope = SecurityScope.UI)
-public interface ManagerRole extends UiMinimalRole {
+public interface ManagerRole extends UiMinimalRole, ReportsRunRole {
 
     String CODE = "manager";
     String NAME = "Manager";
 
-    @MenuPolicy(menuIds = {"home", "tasks", "clients", "orders"})
-    @ViewPolicy(viewIds = {"HomeView", "UserTask.list", "Client.list", "Order.list", "CategoryItem.detail", "Category.detail", "Client.detail", "Invoice.detail", "Invoice.list", "OrderItem.detail", "Order.detail", "Payment.detail", "Payment.list", "AddressFragment", "Contact.detail", "flowui_AddConditionView", "flowui_GroupFilterCondition.detail", "flowui_JpqlFilterCondition.detail", "flowui_PropertyFilterCondition.detail", "flowui_DateIntervalDialog", "FragmentRenderer"})
+    @MenuPolicy(menuIds = {"home", "tasks", "clients", "orders", "invoices", "payments", "AiConversation.list"})
+    @ViewPolicy(viewIds = {"HomeView", "UserTask.list", "Client.list", "Order.list", "CategoryItem.detail", "Category.detail", "Client.detail", "Invoice.detail", "Invoice.list", "OrderItem.detail", "Order.detail", "Payment.detail", "Payment.list", "AddressFragment", "Contact.detail", "flowui_AddConditionView", "flowui_GroupFilterCondition.detail", "flowui_JpqlFilterCondition.detail", "flowui_PropertyFilterCondition.detail", "flowui_DateIntervalDialog", "FragmentRenderer", "AiConversation.list", "AiConversation.detail", "AiAttachmentCardFragmentRenderer"})
     void views();
+
+    @EntityAttributePolicy(entityClass = AiConversation.class, attributes = "*", action = EntityAttributePolicyAction.MODIFY)
+    @EntityPolicy(entityClass = AiConversation.class, actions = EntityPolicyAction.ALL)
+    void aiConversation();
+
+    @EntityAttributePolicy(entityClass = ChatMessage.class, attributes = "*", action = EntityAttributePolicyAction.MODIFY)
+    @EntityPolicy(entityClass = ChatMessage.class, actions = EntityPolicyAction.ALL)
+    void chatMessage();
 
     @EntityAttributePolicy(entityClass = Address.class, attributes = "*", action = EntityAttributePolicyAction.MODIFY)
     @EntityPolicy(entityClass = Address.class, actions = EntityPolicyAction.ALL)
@@ -81,6 +93,7 @@ public interface ManagerRole extends UiMinimalRole {
     @EntityPolicy(entityClass = Payment.class, actions = EntityPolicyAction.ALL)
     void payment();
 
+    @EntityAttributePolicy(entityClass = UserTask.class, attributes = "*", action = EntityAttributePolicyAction.MODIFY)
     @EntityPolicy(entityClass = UserTask.class, actions = EntityPolicyAction.ALL)
     void userTask();
 
@@ -98,4 +111,8 @@ public interface ManagerRole extends UiMinimalRole {
 
     @EntityPolicy(entityClass = CrmSettings.class, actions = EntityPolicyAction.READ)
     void crmSettings();
+
+    @EntityAttributePolicy(entityClass = AiConversationAttachment.class, attributes = "*", action = EntityAttributePolicyAction.MODIFY)
+    @EntityPolicy(entityClass = AiConversationAttachment.class, actions = EntityPolicyAction.ALL)
+    void aiConversationAttachment();
 }

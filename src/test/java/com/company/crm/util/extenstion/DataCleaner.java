@@ -1,11 +1,16 @@
 package com.company.crm.util.extenstion;
 
 import ch.qos.logback.classic.Level;
+import com.company.crm.ai.model.AiConversation;
+import com.company.crm.ai.model.AiConversationAttachment;
+import com.company.crm.ai.model.ChatMessage;
 import com.company.crm.app.util.log.LoggerUtils;
 import com.company.crm.model.base.UuidEntity;
 import com.company.crm.model.catalog.category.Category;
 import com.company.crm.model.catalog.item.CategoryItem;
+import com.company.crm.model.catalog.item.CategoryItemComment;
 import com.company.crm.model.client.Client;
+import com.company.crm.model.contact.Contact;
 import com.company.crm.model.invoice.Invoice;
 import com.company.crm.model.order.Order;
 import com.company.crm.model.order.OrderItem;
@@ -19,12 +24,12 @@ import io.jmix.core.metamodel.model.MetaClass;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
-import org.junit.platform.commons.util.ReflectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.jdbc.JdbcTestUtils;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
 import javax.sql.DataSource;
@@ -34,13 +39,18 @@ import static org.springframework.test.jdbc.JdbcTestUtils.deleteFromTables;
 public class DataCleaner implements AfterAllCallback, AfterEachCallback {
 
     private static final List<Class<? extends UuidEntity>> ENTITIES_REMOVING_ORDER = List.of(
+            ChatMessage.class,
+            AiConversationAttachment.class,
+            AiConversation.class,
             ClientUserActivity.class,
             UserProfileUserActivity.class,
             Payment.class,
             Invoice.class,
             OrderItem.class,
             Order.class,
+            Contact.class,
             Client.class,
+            CategoryItemComment.class,
             CategoryItem.class,
             Category.class,
             UserTask.class
@@ -57,19 +67,63 @@ public class DataCleaner implements AfterAllCallback, AfterEachCallback {
     }
 
     @Override
-    public void afterEach(ExtensionContext context) throws Exception {
+    public void afterEach(ExtensionContext context) {
         var testOpt = context.getTestInstance();
         if (testOpt.isEmpty()) {
             return;
         }
 
         var test = testOpt.get();
-        Method cleanDataMethod = ReflectionUtils.getRequiredMethod(test.getClass(), "cleanDataAfterEach");
-        cleanDataMethod.trySetAccessible();
-        Boolean needToClean = (Boolean) cleanDataMethod.invoke(test);
+        boolean needToClean = resolveNeedToClean(test);
 
         if (needToClean) {
             cleanData(context);
+        }
+    }
+
+    private boolean resolveNeedToClean(Object testInstance) {
+        Object currentInstance = testInstance;
+
+        while (currentInstance != null) {
+            Method cleanDataMethod = findCleanDataAfterEachMethod(currentInstance.getClass());
+            if (cleanDataMethod != null) {
+                try {
+                    cleanDataMethod.trySetAccessible();
+                    Object result = cleanDataMethod.invoke(currentInstance);
+                    return Boolean.TRUE.equals(result);
+                } catch (Exception e) {
+                    throw new IllegalStateException(
+                            "Failed to invoke cleanDataAfterEach() on " + currentInstance.getClass().getName(), e);
+                }
+            }
+
+            currentInstance = getEnclosingInstance(currentInstance);
+        }
+
+        throw new IllegalStateException(
+                "Could not resolve cleanDataAfterEach() on test instance " + testInstance.getClass().getName()
+                        + " or any enclosing test instance.");
+    }
+
+    private Method findCleanDataAfterEachMethod(Class<?> type) {
+        if (type == null) {
+            return null;
+        }
+
+        try {
+            return type.getDeclaredMethod("cleanDataAfterEach");
+        } catch (NoSuchMethodException ignored) {
+            return findCleanDataAfterEachMethod(type.getSuperclass());
+        }
+    }
+
+    private Object getEnclosingInstance(Object instance) {
+        try {
+            Field outerField = instance.getClass().getDeclaredField("this$0");
+            outerField.trySetAccessible();
+            return outerField.get(instance);
+        } catch (Exception ignored) {
+            return null;
         }
     }
 

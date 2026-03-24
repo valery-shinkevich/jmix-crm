@@ -9,6 +9,7 @@ import com.company.crm.app.ui.component.CrmCard;
 import com.company.crm.app.ui.component.CrmLoader;
 import com.company.crm.app.util.AsyncTasksRegistry;
 import com.company.crm.app.util.constant.CrmConstants;
+import com.company.crm.app.util.role.RoleUtils;
 import com.company.crm.app.util.ui.CrmUiUtils;
 import com.company.crm.app.util.ui.renderer.CrmRenderers;
 import com.company.crm.model.client.Client;
@@ -17,6 +18,7 @@ import com.company.crm.model.client.ClientType;
 import com.company.crm.model.datatype.PriceDataType;
 import com.company.crm.model.order.OrderStatus;
 import com.company.crm.model.user.User;
+import com.company.crm.security.role.OnlyMyAccountsRole;
 import com.company.crm.view.main.MainView;
 import com.company.crm.view.util.SkeletonStyler;
 import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
@@ -112,6 +114,8 @@ public class ClientListView extends StandardListView<Client> {
     private DatatypeFormatter datatypeFormatter;
     @Autowired
     private CurrentAuthentication currentAuthentication;
+    @Autowired
+    private RoleUtils roleUtils;
 
     // stats
     @ViewComponent
@@ -451,14 +455,29 @@ public class ClientListView extends StandardListView<Client> {
     }
 
     private void initializeFilterFields() {
-        List<User> accountManagers = new ArrayList<>(userService.loadAccountManagers());
-        accountManagers.addFirst(getCurrentUser());
-        accountManagerSelect.setItems(accountManagers);
+        boolean hasOnlyMyAccounts = roleUtils.isUserHasRole(
+                getCurrentUser(), OnlyMyAccountsRole.CODE);
+
+        if (hasOnlyMyAccounts) {
+            accountManagerSelect.setItems(List.of(getCurrentUser()));
+            accountManagerSelect.setValue(getCurrentUser());
+            accountManagerSelect.setEnabled(false);
+            showOnlyMyClientsCheckBox.setValue(true);
+            showOnlyMyClientsCheckBox.setEnabled(false);
+        } else {
+            List<User> accountManagers = new ArrayList<>(userService.loadAccountManagers());
+            accountManagers.addFirst(getCurrentUser());
+            accountManagerSelect.setItems(accountManagers);
+        }
 
         setSearchHintPopover(searchField);
 
         List.<HasValue<?, ?>>of(searchField, typeSelect, accountManagerSelect, categorySelect)
                 .forEach(field -> field.addValueChangeListener(e -> applyFilters()));
+
+        List<User> finalAccountManagers = hasOnlyMyAccounts
+                ? List.of(getCurrentUser())
+                : new ArrayList<>(userService.loadAccountManagers());
 
         //noinspection unchecked
         FieldValueQueryParameterBinder.builder(this)
@@ -466,7 +485,7 @@ public class ClientListView extends StandardListView<Client> {
                 .addBooleanBinding(showOnlyMyClientsCheckBox)
                 .addEnumBinding(ClientType.class, typeSelect)
                 .addEnumBinding(ClientCategory.class, categorySelect)
-                .addEntitySelectBinding(accountManagerSelect, () -> accountManagers)
+                .addEntitySelectBinding(accountManagerSelect, () -> finalAccountManagers)
                 .build();
     }
 

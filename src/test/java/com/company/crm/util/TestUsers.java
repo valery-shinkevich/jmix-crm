@@ -1,6 +1,7 @@
 package com.company.crm.util;
 
 import com.company.crm.model.user.User;
+import com.company.crm.security.role.AiChatUserRole;
 import com.company.crm.security.role.ManagerRole;
 import com.company.crm.security.role.SupervisorRole;
 import io.jmix.core.UnconstrainedDataManager;
@@ -39,8 +40,17 @@ public class TestUsers {
     }
 
     public void assignRole(String username, String roleCode) {
+        assignRole(username, roleCode, RoleAssignmentRoleType.RESOURCE);
+        assignRole(username, AiChatUserRole.CODE, RoleAssignmentRoleType.ROW_LEVEL);
+    }
+
+    public void assignRowLevelRole(String username, String roleCode) {
+        assignRole(username, roleCode, RoleAssignmentRoleType.ROW_LEVEL);
+    }
+
+    private void assignRole(String username, String roleCode, String roleType) {
         boolean exists = dataManager.load(RoleAssignmentEntity.class)
-                .query("e.username = ?1 and e.roleCode = ?2", username, roleCode)
+                .query("e.username = ?1 and e.roleCode = ?2 and e.roleType = ?3", username, roleCode, roleType)
                 .optional()
                 .isPresent();
 
@@ -51,7 +61,7 @@ public class TestUsers {
         RoleAssignmentEntity assignment = dataManager.create(RoleAssignmentEntity.class);
         assignment.setUsername(username);
         assignment.setRoleCode(roleCode);
-        assignment.setRoleType(RoleAssignmentRoleType.RESOURCE);
+        assignment.setRoleType(roleType);
         dataManager.save(assignment);
     }
 
