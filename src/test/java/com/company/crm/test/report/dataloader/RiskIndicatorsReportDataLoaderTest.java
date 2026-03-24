@@ -151,7 +151,7 @@ class RiskIndicatorsReportDataLoaderTest extends AbstractTest {
         // then
         assertThat(result).hasSize(1);
         assertRiskData(
-                result.get(0),
+                result.getFirst(),
                 0L,
                 BigDecimal.ZERO,
                 0.0,
@@ -163,7 +163,7 @@ class RiskIndicatorsReportDataLoaderTest extends AbstractTest {
     private Map<String, Object> loadRiskData(Client client, LocalDate fromDate, LocalDate toDate) {
         List<Map<String, Object>> result = dataLoader.loadData(null, null, createParams(client, fromDate, toDate));
         assertThat(result).hasSize(1);
-        return result.get(0);
+        return result.getFirst();
     }
 
     private Map<String, Object> createParams(Client client, LocalDate fromDate, LocalDate toDate) {

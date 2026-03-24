@@ -41,7 +41,7 @@ class FlagsAndIndicatorsReportDataLoaderTest extends AbstractTest {
 
         // then
         assertThat(result).hasSize(1);
-        Map<String, Object> flags = result.get(0);
+        Map<String, Object> flags = result.getFirst();
 
 
         assertThat(flags.get("isHighValue")).isEqualTo(false);
@@ -75,7 +75,7 @@ class FlagsAndIndicatorsReportDataLoaderTest extends AbstractTest {
 
         // then
         assertThat(result).hasSize(1);
-        Map<String, Object> flags = result.get(0);
+        Map<String, Object> flags = result.getFirst();
         assertThat(flags).isEmpty();
     }
 
@@ -124,8 +124,8 @@ class FlagsAndIndicatorsReportDataLoaderTest extends AbstractTest {
         assertThat(result2).hasSize(1);
 
         // Both should have the same flag structure
-        Map<String, Object> flags1 = result1.get(0);
-        Map<String, Object> flags2 = result2.get(0);
+        Map<String, Object> flags1 = result1.getFirst();
+        Map<String, Object> flags2 = result2.getFirst();
 
         assertThat(flags1.keySet()).isEqualTo(flags2.keySet());
     }

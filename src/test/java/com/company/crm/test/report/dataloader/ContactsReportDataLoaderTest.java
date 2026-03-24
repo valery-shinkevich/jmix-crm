@@ -54,15 +54,15 @@ class ContactsReportDataLoaderTest extends AbstractTest {
         assertThat(result).hasSize(3);
 
         // Should be ordered by startDate DESC (newest first)
-        assertThat(result.get(0).get("person")).isEqualTo("Jane Smith");
-        assertThat(result.get(0).get("startDate")).isEqualTo(LocalDate.of(2023, 6, 1));
+        assertThat(result.getFirst().get("person")).isEqualTo("Jane Smith");
+        assertThat(result.getFirst().get("startDate")).isEqualTo(LocalDate.of(2023, 6, 1));
         assertThat(result.get(1).get("person")).isEqualTo("Bob Wilson");
         assertThat(result.get(1).get("startDate")).isEqualTo(LocalDate.of(2023, 3, 1));
         assertThat(result.get(2).get("person")).isEqualTo("John Doe");
         assertThat(result.get(2).get("startDate")).isEqualTo(LocalDate.of(2023, 1, 15));
 
         // Check all fields are present
-        assertThat(result.get(0)).containsKeys("person", "position", "phone", "email", "startDate", "endDate");
+        assertThat(result.getFirst()).containsKeys("person", "position", "phone", "email", "startDate", "endDate");
     }
 
     @Test
@@ -109,7 +109,7 @@ class ContactsReportDataLoaderTest extends AbstractTest {
 
         // then
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).get("person")).isEqualTo("Contact 1");
+        assertThat(result.getFirst().get("person")).isEqualTo("Contact 1");
     }
 
     @Test
@@ -130,7 +130,7 @@ class ContactsReportDataLoaderTest extends AbstractTest {
 
         // then
         assertThat(result).hasSize(1);
-        Map<String, Object> contactData = result.get(0);
+        Map<String, Object> contactData = result.getFirst();
 
         assertThat(contactData.get("person")).isEqualTo("Basic Contact");
         assertThat(contactData.get("position")).isEqualTo("Position");

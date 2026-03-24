@@ -39,10 +39,6 @@ public class LLMJudge {
                 .isTrue();
     }
 
-    public void evaluateAnwserWithJudge(String question, String aiResponse, String expectedAnswer) {
-        evaluateAnswerWithJudge(question, aiResponse, expectedAnswer);
-    }
-
     public LLMJudgementCollectorTool.JudgeResult runJudgeEvaluation(String question, String aiResponse, String expectedAnswer) {
         try {
             String judgePrompt = judgePromptTemplate.formatted(question, aiResponse, expectedAnswer);

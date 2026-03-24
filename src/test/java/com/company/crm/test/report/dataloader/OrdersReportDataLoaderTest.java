@@ -54,7 +54,7 @@ class OrdersReportDataLoaderTest extends AbstractTest {
         assertThat(result).hasSize(2);
 
         // Orders should be ordered by date DESC (newest first)
-        Map<String, Object> firstOrder = result.get(0);
+        Map<String, Object> firstOrder = result.getFirst();
         Map<String, Object> secondOrder = result.get(1);
 
         assertThat(firstOrder.get("date")).isEqualTo(LocalDate.of(2024, 1, 20));
@@ -110,7 +110,7 @@ class OrdersReportDataLoaderTest extends AbstractTest {
 
         // then
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).get("date")).isEqualTo(LocalDate.of(2024, 6, 15));
+        assertThat(result.getFirst().get("date")).isEqualTo(LocalDate.of(2024, 6, 15));
     }
 
     @Test
@@ -132,8 +132,8 @@ class OrdersReportDataLoaderTest extends AbstractTest {
 
         // then
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).get("date")).isEqualTo(LocalDate.of(2024, 1, 15));
-        assertThat(result.get(0).get("total")).isEqualTo(PriceDataType.defaultFormat(BigDecimal.valueOf(101), datatypeFormatter));
+        assertThat(result.getFirst().get("date")).isEqualTo(LocalDate.of(2024, 1, 15));
+        assertThat(result.getFirst().get("total")).isEqualTo(PriceDataType.defaultFormat(BigDecimal.valueOf(101), datatypeFormatter));
     }
 
 }

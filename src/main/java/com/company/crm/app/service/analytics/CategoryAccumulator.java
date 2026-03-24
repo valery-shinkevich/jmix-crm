@@ -3,7 +3,7 @@ package com.company.crm.app.service.analytics;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-final class CategoryAccumulator {
+public final class CategoryAccumulator {
 
     private final String categoryCode;
     private final String categoryName;
@@ -22,7 +22,7 @@ final class CategoryAccumulator {
         this.categoryName = categoryName;
     }
 
-    static CategoryAccumulator fromRiskPosition(InvoiceRiskAssessmentService.CategoryRiskPosition position) {
+    public static CategoryAccumulator fromRiskPosition(InvoiceRiskAssessmentService.CategoryRiskPosition position) {
         CategoryAccumulator accumulator = new CategoryAccumulator(position.categoryCode(), position.categoryName());
         accumulator.invoicedAmount = position.invoicedAmount();
         accumulator.paidAmount = position.paidAmount();
@@ -35,13 +35,13 @@ final class CategoryAccumulator {
         return accumulator;
     }
 
-    static CategoryAccumulator fromOverpayment(String categoryCode, String categoryName, BigDecimal overpaymentAmount) {
+    public static CategoryAccumulator fromOverpayment(String categoryCode, String categoryName, BigDecimal overpaymentAmount) {
         CategoryAccumulator accumulator = new CategoryAccumulator(categoryCode, categoryName);
         accumulator.overpaymentAmount = overpaymentAmount;
         return accumulator;
     }
 
-    static CategoryAccumulator merge(CategoryAccumulator left, CategoryAccumulator right) {
+    public static CategoryAccumulator merge(CategoryAccumulator left, CategoryAccumulator right) {
         CategoryAccumulator merged = new CategoryAccumulator(
                 left.categoryCode,
                 left.categoryName != null ? left.categoryName : right.categoryName
@@ -58,7 +58,7 @@ final class CategoryAccumulator {
         return merged;
     }
 
-    CategoryRiskMetrics toMetrics() {
+    public CategoryRiskMetrics toMetrics() {
         Double dtc = null;
         if (dtcDenominator.compareTo(BigDecimal.ZERO) > 0) {
             dtc = dtcNumerator.divide(dtcDenominator, 2, RoundingMode.HALF_UP).doubleValue();

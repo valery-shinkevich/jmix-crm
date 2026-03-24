@@ -46,6 +46,7 @@ public class ViewsDiscoveryTool implements CrmAiTool {
         return viewRegistry.getViewInfos()
                 .stream()
                 .map(this::getRoute)
+                .filter(Objects::nonNull)
                 .toList();
     }
 
@@ -134,7 +135,8 @@ public class ViewsDiscoveryTool implements CrmAiTool {
             - Get the context path of the application
             """)
     public String getServletContextPath() {
-        return serverProperties.getServlet().getContextPath();
+        String contextPath = serverProperties.getServlet().getContextPath();
+        return contextPath == null ? "" : contextPath;
     }
 
     @Nullable

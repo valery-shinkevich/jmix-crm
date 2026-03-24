@@ -517,11 +517,11 @@ public class AiConversationDetailView extends StandardDetailView<AiConversation>
         }
     }
 
-    int getRenderedAttachmentCount() {
+    public int getRenderedAttachmentCount() {
         return attachmentsDc.getItems().size();
     }
 
-    boolean hasRenderedAttachment(UUID attachmentId) {
+    public boolean hasRenderedAttachment(UUID attachmentId) {
         return attachmentsDc.getItems().stream()
                 .anyMatch(attachment -> attachmentId.equals(attachment.getId()));
     }

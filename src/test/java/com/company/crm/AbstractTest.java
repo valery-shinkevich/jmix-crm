@@ -15,10 +15,13 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.logging.LogLevel;
+import org.springframework.boot.logging.LoggingSystem;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.jdbc.JdbcTestUtils;
 
 import java.util.function.Consumer;
 
@@ -39,6 +42,8 @@ public class AbstractTest {
     @Autowired
     protected DataManager dataManager;
     @Autowired
+    protected LoggingSystem loggingSystem;
+    @Autowired
     protected SystemAuthenticator systemAuthenticator;
     @Autowired
     protected ApplicationContext applicationContext;
@@ -55,6 +60,7 @@ public class AbstractTest {
 
     @BeforeEach
     public final void doBeforeEach() {
+        loggingSystem.setLogLevel(JdbcTestUtils.class.getPackageName(), LogLevel.WARN);
         beforeEach();
     }
 
@@ -101,6 +107,9 @@ public class AbstractTest {
         return systemAuthenticator.withUser(username, operation);
     }
 
+    /// used in DataCleaner#findCleanDataAfterEachMethod(Class)
+    /// @see DataCleaner
+    @SuppressWarnings("unused")
     protected boolean cleanDataAfterEach() {
         return true;
     }

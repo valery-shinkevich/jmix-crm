@@ -60,7 +60,7 @@ class InvoiceOverviewReportDataLoaderTest extends AbstractTest {
 
         // then
         assertThat(result).hasSize(1);
-        Map<String, Object> overview = result.get(0);
+        Map<String, Object> overview = result.getFirst();
 
         // Should count only invoices in date range (2 invoices)
         assertThat(overview.get("totalInvoiceCount")).isEqualTo(2L);
@@ -98,7 +98,7 @@ class InvoiceOverviewReportDataLoaderTest extends AbstractTest {
 
         // then
         assertThat(result).hasSize(1);
-        Map<String, Object> overview = result.get(0);
+        Map<String, Object> overview = result.getFirst();
 
         assertThat(overview.get("totalInvoiceCount")).isEqualTo(0L);
         assertThat(overview.get("totalInvoiced")).isEqualTo(PriceDataType.defaultFormat(BigDecimal.ZERO, datatypeFormatter));
@@ -131,7 +131,7 @@ class InvoiceOverviewReportDataLoaderTest extends AbstractTest {
 
         // then
         assertThat(result).hasSize(1);
-        Map<String, Object> overview = result.get(0);
+        Map<String, Object> overview = result.getFirst();
 
         // Should count only invoice in date range
         assertThat(overview.get("totalInvoiceCount")).isEqualTo(1L);
@@ -154,7 +154,7 @@ class InvoiceOverviewReportDataLoaderTest extends AbstractTest {
 
         // then
         assertThat(result).hasSize(1);
-        assertThat(result.get(0)).containsKeys("totalInvoiceCount", "totalInvoiced", "totalPaid", "outstanding", "paymentRate");
+        assertThat(result.getFirst()).containsKeys("totalInvoiceCount", "totalInvoiced", "totalPaid", "outstanding", "paymentRate");
     }
 
 }

@@ -1,10 +1,8 @@
 package com.company.crm.util.extenstion;
 
-import ch.qos.logback.classic.Level;
 import com.company.crm.ai.model.AiConversation;
 import com.company.crm.ai.model.AiConversationAttachment;
 import com.company.crm.ai.model.ChatMessage;
-import com.company.crm.app.util.log.LoggerUtils;
 import com.company.crm.model.base.UuidEntity;
 import com.company.crm.model.catalog.category.Category;
 import com.company.crm.model.catalog.item.CategoryItem;
@@ -27,7 +25,6 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.jdbc.JdbcTestUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -131,8 +128,8 @@ public class DataCleaner implements AfterAllCallback, AfterEachCallback {
         log.info("Removing test data...");
         var dataSource = ExtensionUtils.getBean(context, DataSource.class);
         String[] tablesToClean = getTablesToClean(context);
-        LoggerUtils.runWithLevel(JdbcTestUtils.class, Level.WARN, () ->
-                deleteFromTables(new JdbcTemplate(dataSource), tablesToClean));
+
+        deleteFromTables(new JdbcTemplate(dataSource), tablesToClean);
         log.info("Test data has been removed");
     }
 

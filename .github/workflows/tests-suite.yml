@@ -30,7 +30,7 @@ jobs:
       - name: Running tests suite
         env:
           SPRING_AI_OPENAI_APIKEY: ${{ secrets.OPENAI_API_KEY }}
-          AI_ENABLED: true
+          RUN_AI_TESTS: true
         run: chmod +x ./gradlew && ./gradlew test -Pvaadin.productionMode
 
       - name: Display test report

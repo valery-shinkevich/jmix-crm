@@ -64,15 +64,15 @@ class PaymentHistoryReportDataLoaderTest extends AbstractTest {
         assertThat(result).hasSize(3);
 
         // Payments should be ordered by date DESC (newest first)
-        assertThat(result.get(0).get("number")).isEqualTo("PAY-003");
+        assertThat(result.getFirst().get("number")).isEqualTo("PAY-003");
         assertThat(result.get(1).get("number")).isEqualTo("PAY-002");
         assertThat(result.get(2).get("number")).isEqualTo("PAY-001");
 
         // Check all fields are present
-        assertThat(result.get(0)).containsKeys("number", "date", "dateFormatted", "amount", "invoiceNumber");
-        assertThat(result.get(0).get("amount")).isInstanceOf(String.class);
-        assertThat(((String) result.get(0).get("amount"))).contains("$");
-        assertThat(result.get(0).get("invoiceNumber")).isEqualTo("INV-001");
+        assertThat(result.getFirst()).containsKeys("number", "date", "dateFormatted", "amount", "invoiceNumber");
+        assertThat(result.getFirst().get("amount")).isInstanceOf(String.class);
+        assertThat(((String) result.getFirst().get("amount"))).contains("$");
+        assertThat(result.getFirst().get("invoiceNumber")).isEqualTo("INV-001");
     }
 
     @Test
@@ -108,7 +108,7 @@ class PaymentHistoryReportDataLoaderTest extends AbstractTest {
         assertThat(result).hasSize(10);
 
         // Should get the latest 10 payments (15th to 6th)
-        assertThat(result.get(0).get("number")).isEqualTo("PAY-015");
+        assertThat(result.getFirst().get("number")).isEqualTo("PAY-015");
         assertThat(result.get(9).get("number")).isEqualTo("PAY-006");
         assertThat(result.stream().map(row -> row.get("number")).distinct()).hasSize(10);
     }
@@ -144,7 +144,7 @@ class PaymentHistoryReportDataLoaderTest extends AbstractTest {
 
         // Then
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).get("number")).isEqualTo("IN-RANGE");
+        assertThat(result.getFirst().get("number")).isEqualTo("IN-RANGE");
     }
 
     @Test
