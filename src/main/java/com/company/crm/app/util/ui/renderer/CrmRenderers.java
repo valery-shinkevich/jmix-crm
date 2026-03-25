@@ -45,6 +45,10 @@ import io.jmix.flowui.asynctask.UiAsyncTasks;
 import io.jmix.flowui.component.grid.DataGrid;
 import io.jmix.flowui.kit.component.button.JmixButton;
 import io.jmix.flowui.view.StandardDetailView;
+import io.jmix.flowui.view.StandardListView;
+import io.jmix.flowui.view.StandardOutcome;
+import io.jmix.flowui.view.View;
+import io.jmix.flowui.view.ViewControllerUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -423,6 +427,17 @@ public class CrmRenderers {
                 .withViewClass(detailClass)
                 .editEntity(entity)
                 .withViewConfigurer(v -> v.setReadOnly(readOnly))
+                .withAfterCloseListener(e -> {
+                    if (e.closedWith(StandardOutcome.SAVE)) {
+                        try {
+                            // try to refresh data on the list view
+                            View<?> currentView = getCurrentView();
+                            if (currentView instanceof StandardListView<?> listView) {
+                                ViewControllerUtils.getViewData(listView).loadAll();
+                            }
+                        } catch (Throwable ignored) {}
+                    }
+                })
                 .open();
     }
 }
