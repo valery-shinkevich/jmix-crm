@@ -1,9 +1,5 @@
 package com.company.crm.ai.service;
 
-import com.company.crm.ai.jpql.introspection.exporter.AiDomainModelDescriptorYamlExporter;
-import com.company.crm.ai.jpql.query.AiJpqlQueryService;
-import com.company.crm.ai.report.introspection.AiReportModelDescriptorYamlExporter;
-import com.company.crm.ai.report.run.AiReportExecutionService;
 import com.company.crm.ai.service.AiAttachmentMediaResolver.AttachmentRef;
 import com.company.crm.ai.tool.CrmAiTools;
 import com.company.crm.model.base.UuidEntity;
@@ -18,7 +14,6 @@ import com.company.crm.model.order.OrderItem;
 import com.company.crm.model.payment.Payment;
 import com.company.crm.model.user.User;
 import io.jmix.core.Messages;
-import io.jmix.core.MetadataTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
@@ -64,11 +59,6 @@ public class CrmAnalyticsService {
     public CrmAnalyticsService(
             ChatClient.Builder chatClientBuilder,
             @Value("classpath:prompts/crm-analytics-system-prompt.st") Resource systemPrompt,
-            AiJpqlQueryService aiJpqlQueryService,
-            AiDomainModelDescriptorYamlExporter entityYamlExporter,
-            AiReportModelDescriptorYamlExporter reportYamlExporter,
-            AiReportExecutionService aiReportExecutionService,
-            MetadataTools metadataTools,
             ChatMemoryRepository chatMemoryRepository,
             AiAttachmentMediaResolver attachmentMediaResolver,
             Messages messages,
