@@ -40,7 +40,7 @@
             </formLayout>
             <genericFilter id="items_advancedFilter" dataLoader="categoryItemsDl"
                            opened="false" summaryText="msg:///advanced" themeNames="filled">
-                <properties include=".*"/>
+                <properties include="(name)|(code)|(category)|(uom)|(price)"/>
             </genericFilter>
         </div>
 

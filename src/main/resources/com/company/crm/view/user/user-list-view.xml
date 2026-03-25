@@ -27,7 +27,7 @@
     <layout>
         <genericFilter id="genericFilter"
                        dataLoader="usersDl">
-            <properties include=".*"/>
+            <properties include="(username)|(firstName)|(lastName)|(email)"/>
         </genericFilter>
         <hbox id="buttonsPanel" classNames="buttons-panel">
             <startSlot>

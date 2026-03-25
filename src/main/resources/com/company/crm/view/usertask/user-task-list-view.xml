@@ -34,7 +34,7 @@
         <formLayout id="layoutWrapper" classNames="master-detail-layout" width="100%" height="100%">
             <vbox id="listLayout" height="100%" colspan="1">
                 <genericFilter id="genericFilter" dataLoader="userTasksDl">
-                    <properties include=".*"/>
+                    <properties include="(isCompleted)|(title)|(dueDate)"/>
                 </genericFilter>
                 <hbox id="buttonsPanel" classNames="buttons-panel">
                     <startSlot>

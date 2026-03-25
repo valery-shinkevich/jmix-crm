@@ -168,7 +168,7 @@ public class OrderDetailView extends StandardDetailView<Order> {
     }
 
     @Subscribe("discountValueField")
-    private void onDiscountValueFieldTypedValueChange(final ComponentValueChangeEvent<JmixBigDecimalField, BigDecimal> event) {
+    private void onDiscountValueFieldTypedValueChange(final ComponentValueChangeEvent<TypedTextField<BigDecimal>, BigDecimal> event) {
         recalculateFieldsIfNeeded(event);
     }
 
@@ -240,7 +240,7 @@ public class OrderDetailView extends StandardDetailView<Order> {
         statusPipeline.selectUntil(getEditedEntity().getStatus());
     }
 
-    private void recalculateFieldsIfNeeded(ComponentValueChangeEvent<JmixBigDecimalField, BigDecimal> event) {
+    private void recalculateFieldsIfNeeded(ComponentValueChangeEvent<? extends TextFieldBase<?, ?>, BigDecimal> event) {
         if (event.isFromClient() && !event.getSource().isInvalid()) {
             recalculateTotal(event.getSource());
         }

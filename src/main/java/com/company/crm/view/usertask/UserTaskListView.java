@@ -206,6 +206,7 @@ public class UserTaskListView extends StandardListView<UserTask> {
     private void onInit(final InitEvent event) {
         userTasksDataGrid.addItemDoubleClickListener(e -> {
             if (!isGridOnlyMode() && listLayout.isEnabled()) {
+                userTaskDc.setItem(e.getItem());
                 updateControls(true);
             }
         });
@@ -248,17 +249,6 @@ public class UserTaskListView extends StandardListView<UserTask> {
     @Subscribe("userTasksDataGrid.createAction")
     private void onUserTasksDataGridCreateAction(final ActionPerformedEvent event) {
         createAndEditNewTask();
-    }
-
-    private void createAndEditNewTask() {
-        prepareFormForValidation();
-        dataContext.clear();
-        UserTask task = dataContext.create(UserTask.class);
-        task.setIsCompleted(false);
-        task.setAuthor(getCurrentUser());
-        task.setDueDate(LocalDate.now());
-        userTaskDc.setItem(task);
-        updateControls(true);
     }
 
     @Subscribe("userTasksDataGrid.editAction")
@@ -355,6 +345,21 @@ public class UserTaskListView extends StandardListView<UserTask> {
     @Supply(to = "userTasksDataGrid.dueDate", subject = "renderer")
     private Renderer<UserTask> userTasksDataGridDueDateRenderer() {
         return crmRenderers.taskDueDateRenderer();
+    }
+
+    private void createAndEditNewTask() {
+        createNewTask();
+        updateControls(true);
+    }
+
+    private void createNewTask() {
+        prepareFormForValidation();
+        dataContext.clear();
+        UserTask task = dataContext.create(UserTask.class);
+        task.setIsCompleted(false);
+        task.setAuthor(getCurrentUser());
+        task.setDueDate(LocalDate.now());
+        userTaskDc.setItem(task);
     }
 
     private JmixDataRepositoryContext prepareTasksLoaderRepositoryContext(LoadContext<UserTask> context) {

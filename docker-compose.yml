@@ -9,5 +9,7 @@ services:
       - jmix:/workspace/.jmix
     ports:
       - "8080:8080"
+    environment:
+      - SPRING_AI_OPENAI_APIKEY=${SPRING_AI_OPENAI_APIKEY}
 volumes:
-  jmix: 
+  jmix:

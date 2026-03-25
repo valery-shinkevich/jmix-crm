@@ -24,7 +24,7 @@
     </actions>
     <layout>
         <genericFilter id="genericFilter" dataLoader="categoriesDl">
-            <properties include=".*"/>
+            <properties include="(code)|(name)|(description)"/>
         </genericFilter>
         <hbox id="buttonsPanel" classNames="buttons-panel">
             <startSlot>

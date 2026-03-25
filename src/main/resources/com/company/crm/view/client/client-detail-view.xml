@@ -101,10 +101,11 @@
                                             </responsiveSteps>
                                         </formLayout>
                                         <textArea id="addressField" colspan="2" readOnly="true"
-                                                  property="address.instanceName">
+                                                  property="address.instanceName" required="true"
+                                                  placeholder="msg://addressFieldPlaceholder">
                                             <suffix>
-                                                <button id="addressEditBtn" icon="PENCIL"
-                                                        themeNames="icon primary tertiary"/>
+                                                <button id="addressEditBtn" icon="PENCIL" text="msg:///actions.Edit"
+                                                        classNames="text-primary"/>
                                             </suffix>
                                         </textArea>
                                     </formLayout>

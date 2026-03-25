@@ -39,30 +39,30 @@ public class Address {
 
         if (isNotBlank(country)) {
             result.append(country);
-            appendSeparator(result);
         }
 
-        if (isNotBlank(postalCode)) {
+        if (isNotBlank(postalCode))
+            appendSeparator(result);{
             result.append("(").append(postalCode).append(")");
-            appendSeparator(result);
         }
 
         if (isNotBlank(city)) {
-            result.append(city);
             appendSeparator(result);
+            result.append(city);
         }
 
         if (isNotBlank(street)) {
-            result.append(street);
             appendSeparator(result);
+            result.append(street);
         }
 
         if (isNotBlank(building)) {
-            result.append(building);
             appendSeparator(result);
+            result.append(building);
         }
 
         if (isNotBlank(apartment)) {
+            appendSeparator(result);
             result.append(apartment);
         }
 

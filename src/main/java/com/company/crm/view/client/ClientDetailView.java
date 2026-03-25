@@ -20,6 +20,7 @@ import com.company.crm.model.invoice.Invoice;
 import com.company.crm.model.order.Order;
 import com.company.crm.model.order.OrderStatus;
 import com.company.crm.model.payment.Payment;
+import com.company.crm.model.user.User;
 import com.company.crm.view.address.AddressFragment;
 import com.company.crm.view.main.MainView;
 import com.company.crm.view.payment.PaymentDetailView;
@@ -45,6 +46,7 @@ import io.jmix.chartsflowui.kit.component.model.axis.SplitLine;
 import io.jmix.chartsflowui.kit.component.model.legend.Legend;
 import io.jmix.chartsflowui.kit.component.model.series.SeriesType;
 import io.jmix.chartsflowui.kit.data.chart.ListChartItems;
+import io.jmix.core.AccessManager;
 import io.jmix.core.FetchPlan;
 import io.jmix.core.Messages;
 import io.jmix.core.MetadataTools;
@@ -52,12 +54,15 @@ import io.jmix.core.SaveContext;
 import io.jmix.core.metamodel.datatype.DatatypeFormatter;
 import io.jmix.flowui.Fragments;
 import io.jmix.flowui.UiComponents;
+import io.jmix.flowui.accesscontext.UiEntityAttributeContext;
 import io.jmix.flowui.action.view.DetailSaveCloseAction;
 import io.jmix.flowui.asynctask.UiAsyncTasks;
 import io.jmix.flowui.asynctask.UiAsyncTasks.SupplierConfigurer;
+import io.jmix.flowui.component.combobox.EntityComboBox;
 import io.jmix.flowui.component.formlayout.JmixFormLayout;
 import io.jmix.flowui.component.tabsheet.JmixTabSheet;
 import io.jmix.flowui.component.textarea.JmixTextArea;
+import io.jmix.flowui.data.EntityValueSource;
 import io.jmix.flowui.kit.component.button.JmixButton;
 import io.jmix.flowui.model.DataContext;
 import io.jmix.flowui.model.InstancePropertyContainer;
@@ -72,6 +77,7 @@ import io.jmix.flowui.view.ViewComponent;
 import io.jmix.flowui.view.ViewController;
 import io.jmix.flowui.view.ViewDescriptor;
 import io.jmix.reportsflowui.runner.UiReportRunner;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
@@ -110,6 +116,8 @@ public class ClientDetailView extends StandardDetailView<Client> {
     @Autowired
     private UiComponents uiComponents;
     @Autowired
+    private AccessManager accessManager;
+    @Autowired
     private MetadataTools metadataTools;
     @Autowired
     private ClientService clientService;
@@ -130,6 +138,8 @@ public class ClientDetailView extends StandardDetailView<Client> {
     private RecentActivitiesBlock recentActivities;
     @ViewComponent
     private JmixFormLayout analyticChartsBlock;
+    @ViewComponent
+    private EntityComboBox<User> accountManagerField;
     @ViewComponent
     private CrmCard ordersTotalSumCard;
     @ViewComponent
@@ -164,6 +174,17 @@ public class ClientDetailView extends StandardDetailView<Client> {
         addDetachListener(e -> asyncTasksRegistry.cancelAll());
     }
 
+    @Subscribe
+    private void onBeforeShow(final BeforeShowEvent event) {
+        clientName.setText(getEditedEntity().getInstanceName(messages));
+        initializeRecentActivities();
+        initializeSummaryBlock();
+        initializeOutstandingBalance();
+        initializeAnalyticsBlock();
+        updateAccountManagerFieldAccessibility();
+        updateAddressField();
+    }
+
     @Subscribe("downloadProfileButton")
     public void onDownloadProfileButtonClick(ClickEvent<JmixButton> event) {
         LocalDate now = LocalDate.now();
@@ -179,15 +200,6 @@ public class ClientDetailView extends StandardDetailView<Client> {
                 .runAndShow();
     }
 
-    @Subscribe
-    private void onBeforeShow(final BeforeShowEvent event) {
-        clientName.setText(getEditedEntity().getInstanceName(messages));
-        initializeRecentActivities();
-        initializeSummaryBlock();
-        initializeOutstandingBalance();
-        initializeAnalyticsBlock();
-    }
-
     @Install(to = "clientDl", target = Target.DATA_LOADER, subject = "loadFromRepositoryDelegate")
     private Optional<Client> loadDelegate(UUID id, FetchPlan fetchPlan) {
         return clientRepository.findByIdWithDynamicAttributes(id, fetchPlan);
@@ -200,10 +212,7 @@ public class ClientDetailView extends StandardDetailView<Client> {
 
     @Subscribe(target = Target.DATA_CONTEXT)
     private void onDataContextChange(final DataContext.ChangeEvent event) {
-        Address address = addressDc.getItemOrNull();
-        if (address != null) {
-            addressField.setValue(address.getInstanceName());
-        }
+        updateAddressField();
     }
 
     @Subscribe
@@ -243,6 +252,29 @@ public class ClientDetailView extends StandardDetailView<Client> {
     @Subscribe(id = "addressEditBtn", subject = "clickListener")
     private void onAddressEditBtnClick(final ClickEvent<JmixButton> event) {
         openAddressEditFormDialog();
+    }
+
+    private void updateAccountManagerFieldAccessibility() {
+        if (accountManagerField.getValueSource() instanceof EntityValueSource<?, ?> entityValueSource
+                && entityValueSource.isDataModelSecurityEnabled()) {
+            UiEntityAttributeContext context = new UiEntityAttributeContext(entityValueSource.getMetaPropertyPath());
+            accessManager.applyRegisteredConstraints(context);
+            accountManagerField.setReadOnly(!context.canModify());
+        }
+    }
+
+    private void updateAddressField() {
+        Address address = addressDc.getItemOrNull();
+        if (address != null) {
+            String presentableText = address.getInstanceName();
+            if (StringUtils.isNotBlank(presentableText)) {
+                addressField.setValue(presentableText);
+            } else {
+                addressField.setValue(addressField.getPlaceholder());
+            }
+        } else {
+            addressField.setValue(addressField.getPlaceholder());
+        }
     }
 
     private void openAddressEditFormDialog() {
