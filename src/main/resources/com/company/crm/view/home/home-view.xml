@@ -5,9 +5,9 @@
         <settings id="settingsFacet" auto="true"/>
     </facets>
     <layout padding="false" classNames="dashboard-grid-container">
-        <gridLayout width="100%" maxWidth="90em" classNames="dashboard-grid">
+        <gridLayout width="100%" classNames="dashboard-grid">
             <vbox id="leftBox" classNames="dashboard-grid-main-content">
-                <formLayout id="leftContent"/>
+                <formLayout id="leftContent" width="100%"/>
             </vbox>
 
             <vbox id="rightBox" classNames="dashboard-grid-secondary-content">
