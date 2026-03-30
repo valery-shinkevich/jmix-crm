@@ -1,26 +1,30 @@
 # ![CRM](src/main/resources/META-INF/resources/images/logo.svg) B2B CRM
 
-`B2B CRM` is an enterprise demo application built with Jmix that showcases how to develop **production-ready** business systems including `customers`, `orders`, `invoicing`, `finance` and `analytics`. <br>It reflects real **ERP/CRM** scenarios and demonstrates best practices in domain modeling, UI, security and business logic implementation.
+`B2B CRM` is an enterprise demo application built with Jmix that showcases how to develop **production-ready** business systems
+including `customers`, `orders`, `invoicing`, `finance` and `analytics`. <br>It reflects real **ERP/CRM** scenarios and demonstrates 
+best practices in domain modeling, UI, security, and business logic implementation.
 
 ## 📑 Table of Contents
 
-- [Overview](#overview)
-- [Technical stack](#technical-stack)
-- [Add-ons in use](#add-ons-in-use)
-- [Build and run](#build-and-run)
-- [Demo data](#demo-data)
-- [Accounts](#application-accounts)
-- [Domain Model](#domain-model)
-- [Role Model](#role-model)
+- [Overview](#-overview)
+- [Technical stack](#-technical-stack)
+- [Add-ons in use](#-add-ons)
+- [Build and run](#-build-and-run)
+- [AI Assistant](#-ai-assistant)
+- [Demo data](#-demo-data)
+- [Accounts](#-application-accounts)
+- [Domain Model](#-domain-model)
+- [Role Model](#-role-model)
 
 ## 📖 Overview
 
 This project models a typical B2B sales workflow:
 
-- Manage catalog of your products and categories
+- Manage the catalog of your products and categories
 - Maintain clients and contacts
 - Track orders and order items
 - Issue invoices and record payments
+- Ask an AI assistant for business insights
 - Monitor tasks and recent activities
 - See sales analytics
 
@@ -81,6 +85,25 @@ docker run --rm -p 8080:8080 jmix-crm
 ```bash
 docker-compose up
 ```
+
+## 🤖 AI Assistant
+
+The application includes a built-in `CRM AI` workspace for natural-language analysis of CRM data.
+
+Key capabilities:
+
+- Ask business questions about clients, orders, invoices, payments, and sales performance
+- Respect the current user's data access permissions and keep conversations private to their author
+- Use built-in business reports such as `Client 360 Report` and `Category Cashflow Risk Allocation Report`
+- Keep the conversation history with automatically generated chat titles
+- Upload files to the conversation and let the assistant analyze supported documents and images
+- Generate interactive links to CRM records directly in responses
+
+Configuration:
+
+- Set `spring.ai.openai.api-key` in [application.properties](src/main/resources/application.properties) or provide the `SPRING_AI_OPENAI_APIKEY` environment variable
+
+When enabled, open the `CRM AI` item in the main menu to start a new conversation.
 
 ## 🎲 Demo Data
 
