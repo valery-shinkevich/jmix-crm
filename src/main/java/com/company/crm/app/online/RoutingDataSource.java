@@ -3,6 +3,8 @@ package com.company.crm.app.online;
 import com.vaadin.flow.server.ServiceInitEvent;
 import com.vaadin.flow.server.SessionDestroyEvent;
 import com.vaadin.flow.server.VaadinServiceInitListener;
+import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.flow.server.WrappedSession;
 import io.jmix.core.security.ClientDetails;
 import io.jmix.core.security.CurrentAuthentication;
 import liquibase.integration.spring.SpringLiquibase;
@@ -32,6 +34,7 @@ import javax.sql.DataSource;
  *     jmix.ui.use-session-fixation-protection = false
  * </pre>
  */
+@SuppressWarnings("unused")
 public class RoutingDataSource extends AbstractDataSource implements ApplicationContextAware, VaadinServiceInitListener {
 
     private static final Logger log = LoggerFactory.getLogger(RoutingDataSource.class);
@@ -121,17 +124,37 @@ public class RoutingDataSource extends AbstractDataSource implements Application
         liquibaseProperties.setEnabled(true);
         applicationContext.getBean(SpringLiquibase.class, sessionDataSource, liquibaseProperties);
 
+        log.info("Datasource for session {} created. Datasources amount: {}", sessionId, dataSources.size());
         return sessionDataSource;
     }
 
     protected void onSessionDestroyed(SessionDestroyEvent event) {
-        String sessionId = event.getSession().getSession().getId();
+        VaadinSession session = event.getSession();
+        if (session == null) {
+            log.warn("Can not shutdown datasource for session destroy event [{}] because session is null", event);
+            return;
+        }
+
+        WrappedSession wrappedSession = session.getSession();
+        if (wrappedSession == null) {
+            log.warn("Can not shutdown datasource for session destroy event [{}] because wrapped session is null", event);
+            return;
+        }
+
+        String sessionId = wrappedSession.getId();
+        if (sessionId == null) {
+            log.warn("Can not shutdown datasource for session destroy event [{}] because session id is null", wrappedSession);
+            return;
+        }
 
         DataSource sessionDataSource = dataSources.get(sessionId);
-        if (sessionDataSource != null) {
-            shutdownSessionDataSource(sessionId, sessionDataSource);
-            dataSources.remove(sessionId);
+        if (sessionDataSource == null) {
+            log.warn("Can not shutdown datasource for session destroy event [{}] because session datasource for session not found", wrappedSession);
+            return;
         }
+
+        shutdownSessionDataSource(sessionId, sessionDataSource);
+        dataSources.remove(sessionId);
     }
 
     protected void shutdownSessionDataSource(String sessionId, DataSource sessionDataSource) {
