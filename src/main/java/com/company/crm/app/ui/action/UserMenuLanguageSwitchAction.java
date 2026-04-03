@@ -94,7 +94,7 @@ public class UserMenuLanguageSwitchAction extends UserMenuAction<UserMenuLanguag
     protected UserMenuItem createItem(HasSubMenu.SubMenu subMenu, Locale locale,
                                       Consumer<UserMenuItem.HasClickListener.ClickEvent<TextUserMenuItem>> listener) {
         String itemId = "%s_%sUserMenuItem".formatted(ID, locale);
-        String message = messages.getMessage(locale.getLanguage().toLowerCase());
+        String message = messages.getMessage("language.displayName", locale);
         UserMenuItem menuItem = subMenu.addTextItem(itemId, message, createIcon(locale), listener);
         menuItem.setCheckable(true);
         menuItem.setChecked(locale.equals(getLocaleFromCurrentAuthentication()));

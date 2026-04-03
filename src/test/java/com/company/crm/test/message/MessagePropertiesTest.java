@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MessagePropertiesTest {
 
-    private static final int EXPECTED_LOCALIZED_MESSAGE_FILES = 2;
+    private static final int EXPECTED_LOCALIZED_MESSAGE_FILES = 3;
     private static final Pattern LOCALIZED_MESSAGES_FILENAME = Pattern.compile("messages_(.+)\\.properties");
 
     @Test
@@ -33,26 +33,30 @@ class MessagePropertiesTest {
 
         List<String> failures = new ArrayList<>();
         for (Map.Entry<String, Properties> entry : messagesByLocale.entrySet()) {
-            Set<String> localeKeys = entry.getValue().stringPropertyNames();
+            String locale = entry.getKey();
+            Properties messages = entry.getValue();
+            Set<String> msgKeys = messages.stringPropertyNames();
+
             Set<String> missingKeys = new TreeSet<>(allKeys);
-            missingKeys.removeAll(localeKeys);
+            missingKeys.removeAll(msgKeys);
 
             if (!missingKeys.isEmpty()) {
-                failures.add(entry.getKey() + " is missing keys: " + String.join(", ", missingKeys));
+                failures.add(locale + " is missing keys: " + String.join(", ", missingKeys));
             }
+
+            messages.forEach((key, value) -> {
+                if (key.equals("com.company.crm.view.usagehelp/usageHelp.contentFile")) {
+                    String expectedPath = "com/company/crm/view/usagehelp/usage-help-%s.html".formatted(locale);
+                    if (!value.equals(expectedPath)) {
+                        failures.add(locale + " has incorrect value for key '" + key + "': " + value);
+                    }
+                }
+            });
         }
 
         assertTrue(
                 failures.isEmpty(),
                 "Localized bundles do not contain the same keys:\n" + String.join("\n", failures)
-        );
-    }
-
-    private static void ensureMessageFilesAmount(Map<String, Properties> messagesByLocale) {
-        assertTrue(
-                messagesByLocale.size() >= EXPECTED_LOCALIZED_MESSAGE_FILES,
-                "Expected at least " + EXPECTED_LOCALIZED_MESSAGE_FILES
-                        + " localized message bundles but found: " + messagesByLocale.keySet()
         );
     }
 
@@ -90,5 +94,13 @@ class MessagePropertiesTest {
         Matcher matcher = LOCALIZED_MESSAGES_FILENAME.matcher(filename);
         assertTrue(matcher.matches(), "Unexpected localized message filename: " + filename);
         return matcher.group(1);
+    }
+
+    private static void ensureMessageFilesAmount(Map<String, Properties> messagesByLocale) {
+        assertTrue(
+                messagesByLocale.size() >= EXPECTED_LOCALIZED_MESSAGE_FILES,
+                "Expected at least " + EXPECTED_LOCALIZED_MESSAGE_FILES
+                        + " localized message bundles but found: " + messagesByLocale.keySet()
+        );
     }
 }

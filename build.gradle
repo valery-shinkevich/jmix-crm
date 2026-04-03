@@ -81,6 +81,9 @@ dependencies {
 
     //              --- [ JMIX TRANSLATIONS ] ---
     implementation 'io.jmix.translations:jmix-translations-de'
+    implementation 'io.jmix.translations:jmix-translations-ru'
+    implementation 'io.jmix.translations:jmix-translations-it'
+    implementation 'io.jmix.translations:jmix-translations-es'
 
     //              --- [ VAADIN ADD-ONS ] ---
     implementation 'org.vaadin.jchristophe:sortable-layout:2.1.0'

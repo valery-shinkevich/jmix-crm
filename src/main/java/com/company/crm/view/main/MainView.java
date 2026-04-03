@@ -240,7 +240,8 @@ public class MainView extends StandardMainView {
     private void onNotificationButtonClick() {
         Optional.ofNullable(notificationsPopover[0]).ifPresent(Popover::removeFromParent);
 
-        HorizontalLayout layout = new HorizontalLayout(VaadinIcon.CHECK.create(), new Span("Notifications not found"));
+        HorizontalLayout layout = new HorizontalLayout(VaadinIcon.CHECK.create(),
+                new Span(messageBundle.getMessage("notificationsNotFound")));
         layout.setSizeFull();
         layout.setPadding(true);
         layout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
