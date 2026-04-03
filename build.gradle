@@ -79,6 +79,9 @@ dependencies {
 
     implementation 'io.jmix.localfs:jmix-localfs-starter'
 
+    //              --- [ JMIX TRANSLATIONS ] ---
+    implementation 'io.jmix.translations:jmix-translations-de'
+
     //              --- [ VAADIN ADD-ONS ] ---
     implementation 'org.vaadin.jchristophe:sortable-layout:2.1.0'
 

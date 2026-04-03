@@ -62,6 +62,8 @@ public class LoginView extends StandardView implements LocaleChangeObserver {
     @ViewComponent
     private JmixButton submitBtn;
     @ViewComponent
+    private JmixButton usageBtn;
+    @ViewComponent
     private Div errorMessage;
     @ViewComponent
     private H5 errorMessageTitle;
@@ -163,6 +165,7 @@ public class LoginView extends StandardView implements LocaleChangeObserver {
         usernameField.setRequiredMessage(messageBundle.getMessage("loginForm.errorUsername"));
         passwordField.setLabel(messageBundle.getMessage("loginForm.password"));
         passwordField.setRequiredMessage(messageBundle.getMessage("loginForm.errorPassword"));
+        usageBtn.setText(messageBundle.getMessage("usageHelp.buttonTitle"));
         submitBtn.setText(messageBundle.getMessage("loginForm.submit"));
     }
 }
