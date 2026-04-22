@@ -32,7 +32,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -47,16 +46,14 @@ public class CrmAnalyticsService {
 
     private static final String CRM_MESSAGE_TYPE_METADATA_KEY = "crmMessageType";
     private static final String ATTACHMENT_MESSAGE_TYPE = "ATTACHMENT";
+
     private final ApplicationContext applicationContext;
 
-    @Value("${spring.ai.openai.api-key:}")
-    private String openAiApiKey;
-
-    private final ChatClient chatClient;
-    private final AiAttachmentMediaResolver attachmentMediaResolver;
-    private final Resource systemPrompt;
     private final Messages messages;
+    private final Resource systemPrompt;
+    private final ChatClient chatClient;
     private final CurrentAuthentication currentAuthentication;
+    private final AiAttachmentMediaResolver attachmentMediaResolver;
 
     @Autowired
     public CrmAnalyticsService(
@@ -82,12 +79,6 @@ public class CrmAnalyticsService {
         this.messages = messages;
         this.currentAuthentication = currentAuthentication;
         this.applicationContext = applicationContext;
-    }
-
-    public boolean isAiIntegrationActive() {
-        return openAiApiKey != null
-                && !openAiApiKey.isBlank()
-                && !openAiApiKey.contains("YOUR_API_KEY");
     }
 
     /**
@@ -168,8 +159,7 @@ public class CrmAnalyticsService {
     }
 
     private String resolveResponseLanguage() {
-        Locale locale = currentAuthentication.getLocale();
-        return locale != null ? locale.getLanguage() : Locale.ENGLISH.getLanguage();
+        return currentAuthentication.getLocale().getLanguage();
     }
 
     private UUID tryParseConversationId(String conversationId) {

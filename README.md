@@ -33,8 +33,7 @@ This project models a typical B2B sales workflow:
 ## 🛠️ Technical Stack
 
 - Java 21
-- Jmix 2.7
-- Spring Boot 3
+- Jmix (spring boot + vaadin)
 - HSQLDB
 
 ## 🧩 Add-ons

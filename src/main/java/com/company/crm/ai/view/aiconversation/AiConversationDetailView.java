@@ -1,5 +1,6 @@
 package com.company.crm.ai.view.aiconversation;
 
+import com.company.crm.ai.config.CrmAiConfig;
 import com.company.crm.ai.model.AiAttachmentType;
 import com.company.crm.ai.model.AiConversation;
 import com.company.crm.ai.model.AiConversationAttachment;
@@ -42,6 +43,7 @@ import io.jmix.flowui.kit.component.button.JmixButton;
 import io.jmix.flowui.model.CollectionContainer;
 import io.jmix.flowui.model.CollectionLoader;
 import io.jmix.flowui.model.InstanceContainer;
+import io.jmix.flowui.model.InstanceLoader;
 import io.jmix.flowui.upload.TemporaryStorage;
 import io.jmix.flowui.view.EditedEntityContainer;
 import io.jmix.flowui.view.MessageBundle;
@@ -105,6 +107,8 @@ public class AiConversationDetailView extends StandardDetailView<AiConversation>
     @Autowired
     private DataManager dataManager;
     @Autowired
+    private CrmAiConfig crmAiConfig;
+    @Autowired
     private Notifications notifications;
     @Autowired
     private TemporaryStorage temporaryStorage;
@@ -126,7 +130,7 @@ public class AiConversationDetailView extends StandardDetailView<AiConversation>
 
         setShowSaveNotification(false);
 
-        if (!crmAnalyticsService.isAiIntegrationActive()) {
+        if (!crmAiConfig.isAiIntegrationEnabled()) {
             notifications.create(messageBundle.getMessage("errorInvalidApiKey"))
                     .withType(Notifications.Type.ERROR)
                     .withDuration(0)
@@ -140,7 +144,7 @@ public class AiConversationDetailView extends StandardDetailView<AiConversation>
     }
 
     @Subscribe(id = "aiConversationDl", target = Target.DATA_LOADER)
-    public void onAiConversationDlPostLoad(final io.jmix.flowui.model.InstanceLoader.PostLoadEvent<AiConversation> event) {
+    public void onAiConversationDlPostLoad(final InstanceLoader.PostLoadEvent<AiConversation> event) {
         loadAttachments();
         refreshMessages();
     }
