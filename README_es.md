@@ -2,14 +2,14 @@
 
 Idiomas: [English](README.md) | [Русский](README_ru.md) | [Deutsch](README_de.md) | [Italiano](README_it.md) | [Español](README_es.md)
 
-`B2B CRM` es una aplicación demo empresarial creada con Jmix que muestra cómo desarrollar sistemas de negocio **listos para producción**
+`B2B CRM` es una demo de aplicación empresarial creada con Jmix que muestra cómo desarrollar sistemas de negocio **listos para su puesta en producción**
 para `clientes`, `pedidos`, `facturación`, `finanzas` y `analítica`. <br>Refleja escenarios reales **ERP/CRM** y demuestra
 buenas prácticas de modelado de dominio, UI, seguridad e implementación de lógica de negocio.
 
 ## 📑 Índice
 
 - [Resumen](#-resumen)
-- [Stack técnico](#-stack-técnico)
+- [Stack técnológico](#-stack-técnico)
 - [Add-ons utilizados](#-add-ons-utilizados)
 - [Build y ejecución](#-build-y-ejecución)
 - [Asistente de IA](#-asistente-de-ia)
@@ -20,17 +20,17 @@ buenas prácticas de modelado de dominio, UI, seguridad e implementación de ló
 
 ## 📖 Resumen
 
-Este proyecto modela un flujo típico de ventas B2B:
+Este proyecto modela un flujo típico de ventas B2B para:
 
-- Gestionar el catálogo de productos y categorías
-- Mantener clientes y contactos
-- Hacer seguimiento de pedidos y líneas de pedido
-- Emitir facturas y registrar pagos
-- Preguntar a un asistente de IA por insights de negocio
-- Supervisar tareas y actividades recientes
-- Ver analítica de ventas
+- gestionar el catálogo de productos y categorías
+- mantener clientes y contactos
+- hacer seguimiento de pedidos y líneas de pedido
+- emitir facturas y registrar pagos
+- preguntar a un asistente de IA por perspectivas de negocio
+- supervisar tareas y actividades recientes
+- ver analítica de ventas
 
-## 🛠️ Stack técnico
+## 🛠️ Stack técnológico
 
 - Java 21
 - Jmix 2.7
@@ -52,7 +52,7 @@ Este proyecto modela un flujo típico de ventas B2B:
 
 Requisitos: Java 21+
 
-### Ejecutar el proyecto
+### Para ejecutar el proyecto
 
 1. Ejecuta la configuración Jmix [B2B CRM](.run/crm-app.run.xml) o ejecuta
 
@@ -117,13 +117,13 @@ El perfil local genera datos demo al iniciar la aplicación:
 
 ## 👥 Cuentas de la aplicación
 
-| Puesto          | Usuario       | Contraseña | Acceso                                           |
-|-----------------|---------------|------------|--------------------------------------------------|
-| Administrator   | ```admin```   | admin      | Acceso completo a todos los datos y configuraciones |
-| Supervisor      | ```james```   | james      | Manager + gestión de catálogo + asignación de cuentas |
-| Manager         | ```manager``` | manager    | Acceso completo a todos los clientes y pedidos   |
-| Account Manager | ```alice```   | alice      | Solo ve clientes asignados a Alice Brown         |
-| Account Manager | ```robert```  | robert     | Solo ve clientes asignados a Robert Taylor       |
+| Puesto                                    | Usuario   | Contraseña | Acceso                                                |
+| ----------------------------------------- | --------- | ---------- | ----------------------------------------------------- |
+| Administrador del sistema (Administrator) | `admin`   | admin      | Acceso completo a todos los datos y configuraciones   |
+| Supervisor                                | `james`   | james      | Manager + gestión de catálogo + asignación de cuentas |
+| Manager                                   | `manager` | manager    | Acceso completo a todos los clientes y pedidos        |
+| Gestora de cuenta (Account Manager)       | `alice`   | alice      | Solo ve clientes asignados a Alice Brown              |
+| Gestor de cuenta (Account Manager)        | `robert`  | robert     | Solo ve clientes asignados a Robert Taylor            |
 
 ## ⚙️ Modelo de dominio
 
@@ -147,11 +147,11 @@ classDiagram
 La aplicación usa un modelo jerárquico de roles:
 
 - `Administrator`: acceso completo a todas las funciones, entidades y configuraciones de la aplicación.
-- `Supervisor`: amplía el rol Manager con capacidades administrativas adicionales:
-    - Gestionar el catálogo de productos, incluidas Categories y Category Items.
-    - Asignar Account Managers a Clients.
+- `Supervisor`: como el rol Manager (ver más abajo), pero con capacidades administrativas adicionales:
+  - Gestiona el catálogo de productos, incluidas Categories y Category Items.
+  - Asigna Account Managers a Clients.
 - `Manager`: rol principal para operaciones de ventas.
-    - Acceso completo a Clients, Contacts, Orders, Invoices y Payments.
-    - Acceso de solo lectura al catálogo de productos.
-    - Gestión de sus propias Tasks.
+  - Acceso completo a Clients, Contacts, Orders, Invoices y Payments.
+  - Acceso de solo lectura al catálogo de productos.
+  - Gestión de sus propias Tasks.
 - `UI Minimal`: acceso mínimo que permite iniciar sesión y navegación básica.
