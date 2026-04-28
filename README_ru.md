@@ -33,7 +33,7 @@
 ## 🛠️ Технический стек
 
 - Java 21
-- Jmix 2.7
+- Jmix 2.8
 - Spring Boot 3
 - HSQLDB
 

@@ -33,7 +33,7 @@ Este proyecto modela un flujo típico de ventas B2B para:
 ## 🛠️ Stack técnológico
 
 - Java 21
-- Jmix 2.7
+- Jmix 2.8
 - Spring Boot 3
 - HSQLDB
 

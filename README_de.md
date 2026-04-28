@@ -33,7 +33,7 @@ Dieses Projekt modelliert einen typischen B2B-Vertriebsablauf:
 ## 🛠️ Technischer Stack
 
 - Java 21
-- Jmix 2.7
+- Jmix 2.8
 - Spring Boot 3
 - HSQLDB
 
