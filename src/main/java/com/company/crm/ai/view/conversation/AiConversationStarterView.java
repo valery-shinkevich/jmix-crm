@@ -460,6 +460,12 @@ public class AiConversationStarterView extends StandardView {
         detailView.setEntityToEdit(conversation);
         detailView.setOpenedInSideDialog(true);
         detailView.reloadViewData();
+        // TODO: bad way, refactor AiConversationDetailView
+        detailView.addAttachListener(event -> {
+            // ReadyEvent is not invoked, because view is not correctly opened.
+            detailView.onReady(new ReadyEvent(detailView));
+            event.unregisterListener();
+        });
 
         SideDialog detailSideDialog = dialogs.createSideDialog()
                 .withSideDialogPosition(SideDialogPosition.RIGHT)
